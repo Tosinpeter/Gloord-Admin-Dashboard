@@ -91,19 +91,18 @@ const Page = () => {
     })
 
     const totalPages = Math.ceil(filteredPatients.length / ROWS_PER_PAGE)
+    const effectiveCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1
     const paginatedPatients = filteredPatients.slice(
-        (currentPage - 1) * ROWS_PER_PAGE,
-        currentPage * ROWS_PER_PAGE,
+        (effectiveCurrentPage - 1) * ROWS_PER_PAGE,
+        effectiveCurrentPage * ROWS_PER_PAGE,
     )
-
-    useEffect(() => {
-        if (currentPage > totalPages && totalPages > 0) setCurrentPage(totalPages)
-    }, [totalPages, currentPage])
 
     useEffect(() => {
         const cachedPatients = readCachedJson<Patient[]>(PATIENTS_CACHE_KEY)
         if (cachedPatients?.length) {
-            setPatients(cachedPatients)
+            setTimeout(() => {
+                setPatients(cachedPatients)
+            }, 0)
         } else {
             writeCachedJson(PATIENTS_CACHE_KEY, patientsData)
         }
@@ -123,10 +122,6 @@ const Page = () => {
             window.removeEventListener('offline', syncConnectivity)
         }
     }, [])
-
-    useEffect(() => {
-        writeCachedJson(PATIENTS_CACHE_KEY, patients)
-    }, [patients])
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -318,13 +313,13 @@ const Page = () => {
                         {totalPages > 1 && (
                             <div className="flex items-center justify-between px-6 py-4 border-t border-[#EDEBE3]">
                                 <p className="text-sm text-gray-500">
-                                    Showing {(currentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(currentPage * ROWS_PER_PAGE, filteredPatients.length)} of {filteredPatients.length}
+                                    Showing {(effectiveCurrentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(effectiveCurrentPage * ROWS_PER_PAGE, filteredPatients.length)} of {filteredPatients.length}
                                 </p>
                                 <div className="flex items-center gap-1">
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(Math.max(1, effectiveCurrentPage - 1))}
+                                        disabled={effectiveCurrentPage === 1}
                                         className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronLeft size={16} />
@@ -335,7 +330,7 @@ const Page = () => {
                                             type="button"
                                             onClick={() => setCurrentPage(page)}
                                             className={`size-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                                                page === currentPage
+                                                page === effectiveCurrentPage
                                                     ? 'bg-pry text-white'
                                                     : 'hover:bg-gray-50 text-gray-600'
                                             }`}
@@ -345,8 +340,8 @@ const Page = () => {
                                     ))}
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(Math.min(totalPages, effectiveCurrentPage + 1))}
+                                        disabled={effectiveCurrentPage === totalPages}
                                         className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronRight size={16} />

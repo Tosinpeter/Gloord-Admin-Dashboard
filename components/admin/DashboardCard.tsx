@@ -1,9 +1,4 @@
 import React from 'react'
-import one from '@/public/images/one.png'
-import two from '@/public/images/two.png'
-import three from '@/public/images/three.png'
-import four from '@/public/images/four.png'
-import Image from 'next/image'
 import { ArrowUp } from 'lucide-react'
 
 const data = [

@@ -11,16 +11,6 @@ interface Filter {
     label: string;
 }
 
-// Define patient type to match the structure in PatientDetailsCard
-interface Patient {
-    id: string;
-    date: string;
-    status: 'Approved' | 'Pending' | 'Rejected';
-    statusClass: string;
-    skinConcern: string;
-    image: any; // You can use StaticImageData type here
-}
-
 const DetailsSection = () => {
     const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false)
     const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false)

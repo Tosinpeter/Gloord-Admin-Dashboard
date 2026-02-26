@@ -52,7 +52,7 @@ const CalendarDropdown = ({
     )
     const [hoveredDate, setHoveredDate] = useState<Date | null>(null)
     const [currentMonth, setCurrentMonth] = useState<Date>(
-        new Date(selectedStartDate || Date.now())
+        new Date(selectedStartDate || new Date())
     )
     const dropdownRef = useRef<HTMLDivElement>(null)
 

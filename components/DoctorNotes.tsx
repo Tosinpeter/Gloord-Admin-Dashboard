@@ -27,7 +27,7 @@ const DoctorNotes = () => {
                 </div>
             </div>
             <div className="border border-white bg-[#EDEBE3] font-normal text-sm rounded-xl p-4 flex flex-col gap-5">
-                <span>Based on the patient's skin analysis, I recommend the following treatment approach:</span>
+                <span>Based on the patient&apos;s skin analysis, I recommend the following treatment approach:</span>
                 <ol className='pl-4 list list-decimal'>
                     <li>
                         Start with the prescribed cleanser twice daily to maintain skin barrier function

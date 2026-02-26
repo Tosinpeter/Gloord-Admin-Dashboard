@@ -3,6 +3,7 @@ import Image from 'next/image'
 import React from 'react'
 import patientimage from '@/public/images/patientimage.png'
 import Link from 'next/link'
+import type { StaticImageData } from 'next/image'
 
 // Define props interface
 interface PatientDetailsCardProps {
@@ -22,7 +23,7 @@ interface Patient {
     status: 'Approved' | 'Pending' | 'Rejected';
     statusClass: string;
     skinConcern: string;
-    image: any;
+    image: StaticImageData;
 }
 
 const PatientDetailsCard = ({
