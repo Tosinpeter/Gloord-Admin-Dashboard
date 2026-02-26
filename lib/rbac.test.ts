@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { canAccessPath, getRouteArea, isAppRole } from "./rbac"
+import { canAccessPath, getRoleFromCookieString, getRouteArea, isAppRole } from "./rbac"
 
 describe("rbac helpers", () => {
   it("detects valid roles", () => {
@@ -21,5 +21,12 @@ describe("rbac helpers", () => {
     expect(canAccessPath("/doctor/pending", "doctor")).toBe(true)
     expect(canAccessPath("/doctor/pending", "admin")).toBe(false)
     expect(canAccessPath("/", null)).toBe(true)
+  })
+
+  it("extracts and validates role from cookie string", () => {
+    expect(getRoleFromCookieString("APP_ROLE=admin; theme=dark")).toBe("admin")
+    expect(getRoleFromCookieString("theme=dark; APP_ROLE=doctor")).toBe("doctor")
+    expect(getRoleFromCookieString("APP_ROLE=patient; theme=dark")).toBeNull()
+    expect(getRoleFromCookieString("theme=dark")).toBeNull()
   })
 })
