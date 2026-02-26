@@ -39,8 +39,17 @@ interface ProductModalProps {
     submitLabel: string;
 }
 
+type ProductFormData = Omit<Partial<Product>, 'strength'> & {
+    name: string;
+    category: string;
+    description: string;
+    usage: string;
+    skinTypes: string;
+    strength: Product['strength'] | '';
+}
+
 const ProductModal = ({ isOpen, onClose, onSubmit, product, title, submitLabel }: ProductModalProps) => {
-    const getInitialFormData = () => (
+    const getInitialFormData = (): ProductFormData => (
         product
             ? {
                 name: product.name,
@@ -53,9 +62,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product, title, submitLabel }
             : { name: '', category: '', strength: '', description: '', usage: '', skinTypes: 'All Skin Types' }
     )
 
-    const [formData, setFormData] = useState({
-        ...getInitialFormData(),
-    })
+    const [formData, setFormData] = useState<ProductFormData>(getInitialFormData)
 
     const { dialogRef } = useAccessibleModal({ isOpen, onClose })
 
@@ -65,7 +72,13 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product, title, submitLabel }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        onSubmit(product ? { ...formData, id: product.id } : formData)
+        const { strength, ...rest } = formData
+        const submitData: Partial<Product> = {
+            ...rest,
+            ...(strength ? { strength } : {}),
+        }
+
+        onSubmit(product ? { ...submitData, id: product.id } : submitData)
     }
 
     if (!isOpen) return null
