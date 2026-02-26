@@ -1,0 +1,36 @@
+{
+  "common": {
+    "language": "Langue"
+  },
+  "login": {
+    "welcomeBack": "Bon retour",
+    "subtitle": "Connectez-vous pour examiner et approuver les plans de traitement",
+    "doctor": "Médecin",
+    "adminOwner": "Admin/Propriétaire",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "emailPlaceholder": "Saisissez votre e-mail",
+    "signIn": "Se connecter",
+    "heroTitle": "Vous voyez la surface, nous comprenons votre peau",
+    "heroBody": "Nous découvrons ce qui se passe réellement avec votre peau et comment la traiter. C’est ici que commence votre prise en charge."
+  },
+  "admin": {
+    "tabs": {
+      "overview": "Aperçu",
+      "doctors": "Médecins",
+      "patients": "Patients",
+      "allCases": "Tous les cas"
+    }
+  },
+  "charts": {
+    "skinConcernsDistribution": "Répartition des préoccupations cutanées",
+    "skinConcerns": {
+      "acne": "Acné",
+      "hyperpigmentation": "Hyperpigmentation",
+      "agingWrinkles": "Vieillissement/Rides",
+      "drySkin": "Peau sèche",
+      "rosacea": "Rosacée",
+      "other": "Autre"
+    }
+  }
+}

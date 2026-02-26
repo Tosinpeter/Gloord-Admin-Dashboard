@@ -1,0 +1,44 @@
+{
+  "common": {
+    "language": "Language"
+  },
+  "login": {
+    "welcomeBack": "Welcome back",
+    "subtitle": "Sign in to review and approve treatment plans",
+    "doctor": "Doctor",
+    "adminOwner": "Admin/Owner",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "Enter your email",
+    "signIn": "Sign In",
+    "heroTitle1": "You see the surface, we understand your skin",
+    "heroBody1": "We discover what's really happening with your skin and how to treat it. This is where your care begins.",
+    "heroTitle2": "Advanced Skin Analysis",
+    "heroBody2": "Our AI-powered technology analyzes your skin concerns with precision and recommends personalized treatments.",
+    "heroTitle3": "Expert Dermatologists",
+    "heroBody3": "Connect with board-certified dermatologists who understand your unique skin needs.",
+    "heroTitle4": "Personalized Treatment Plans",
+    "heroBody4": "Receive customized treatment plans designed specifically for your skin concerns and goals.",
+    "heroTitle5": "Track Your Progress",
+    "heroBody5": "Monitor your skin's improvement over time with our progress tracking tools."
+  },
+  "admin": {
+    "tabs": {
+      "overview": "Overview",
+      "doctors": "Doctors",
+      "patients": "Patients",
+      "allCases": "All Cases"
+    }
+  },
+  "charts": {
+    "skinConcernsDistribution": "Skin Concerns Distribution",
+    "skinConcerns": {
+      "acne": "Acne",
+      "hyperpigmentation": "Hyperpigmentation",
+      "agingWrinkles": "Aging/Wrinkles",
+      "drySkin": "Dry Skin",
+      "rosacea": "Rosacea",
+      "other": "Other"
+    }
+  }
+}

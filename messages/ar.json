@@ -1,0 +1,37 @@
+{
+  "common": {
+    "language": "اللغة"
+  },
+  "login": {
+    "welcomeBack": "مرحبًا بعودتك",
+    "subtitle": "سجّل الدخول لمراجعة خطط العلاج والموافقة عليها",
+    "doctor": "طبيب",
+    "adminOwner": "مشرف/مالك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "signIn": "تسجيل الدخول",
+    "heroTitle": "أنت ترى السطح ونحن نفهم بشرتك",
+    "heroBody": "نكتشف ما يحدث حقًا مع بشرتك وكيفية علاجها. من هنا تبدأ رعايتك."
+  },
+  "admin": {
+    "tabs": {
+      "overview": "نظرة عامة",
+      "doctors": "الأطباء",
+      "patients": "المرضى",
+      "allCases": "كل الحالات"
+    }
+  },
+  "charts": {
+    "skinConcernsDistribution": "توزيع مشاكل البشرة",
+    "skinConcerns": {
+      "acne": "حب الشباب",
+      "hyperpigmentation": "فرط التصبغ",
+      "agingWrinkles": "الشيخوخة/التجاعيد",
+      "drySkin": "جفاف البشرة",
+      "rosacea": "الوردية",
+      "other": "أخرى"
+    }
+  }
+}
+
