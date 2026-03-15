@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gloord Admin Dashboard
+
+A comprehensive admin dashboard for managing dermatology clinic operations, built with Next.js 16, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Role-based Access Control**: Separate interfaces for Admin and Doctor users
+- **Patient Management**: Complete patient lifecycle management
+- **Case Review System**: Streamlined case approval workflow
+- **Analytics Dashboard**: Real-time metrics and charts for clinic performance
+- **Multi-language Support**: English, French, and Arabic localization
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Notification System**: Real-time notifications for important updates
+- **Product Catalog**: Manage treatment products and recommendations
+
+## Tech Stack
+
+- **Framework**: Next.js 16 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Charts**: Recharts
+- **Internationalization**: next-intl
+- **Testing**: Playwright (E2E), Vitest (Unit)
+- **Package Manager**: npm
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd gloord-admin-dashboard
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm test:unit` - Run unit tests with Vitest
+- `npm test:e2e` - Run end-to-end tests with Playwright
+- `npm test:e2e:ui` - Run Playwright tests with UI
+- `npm run test:all` - Run all tests
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/                    # Next.js app directory
+├── admin/             # Admin-specific pages
+├── doctor/            # Doctor-specific pages
+├── globals.css        # Global styles
+├── layout.tsx         # Root layout
+└── page.tsx           # Home page
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+components/            # Reusable components
+├── ui/               # UI components (buttons, tables, etc.)
+├── admin/            # Admin-specific components
+└── ...
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+lib/                  # Utility functions and configurations
+messages/             # Internationalization files
+tests/                # Test files
+```
 
-## Deploy on Vercel
+## Testing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project includes comprehensive testing:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Unit Tests**: Component and utility function testing with Vitest
+- **E2E Tests**: Full user journey testing with Playwright across Chromium, Firefox, and Safari
+
+## Internationalization
+
+The app supports multiple languages:
+
+- English (en)
+- French (fr)
+- Arabic (ar) - RTL support
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## License
+
+This project is private and proprietary.

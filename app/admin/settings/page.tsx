@@ -107,7 +107,7 @@ const SettingsPage = () => {
                         </p>
                     </div>
                     <div className="max-w-[1062px] w-full mx-auto flex flex-col gap-8">
-                        <div className="bg-[#EDEBE3] border border-[#EDEBE3] rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
+                        <div className="bg-sec border border-sec rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
                             <div className="flex gap-4 md:gap-6 items-center">
                                 <div className="size-20 bg-white rounded-full overflow-hidden">
                                     <Image
@@ -193,7 +193,7 @@ const SettingsPage = () => {
                                     Manage how you receive notifications and alerts
                                 </p>
                             </div>
-                            <div className="bg-[#EDEBE3] border border-[#EDEBE3] rounded-xl p-4 md:p-8 flex flex-col gap-2 md:gap-5">
+                            <div className="bg-sec border border-sec rounded-xl p-4 md:p-8 flex flex-col gap-2 md:gap-5">
                                 <div className="flex flex-col gap-3">
                                     <div className="flex items-center justify-between gap-3 p-4 bg-white rounded-lg">
                                         <div className="flex flex-col gap-2">
@@ -237,7 +237,7 @@ const SettingsPage = () => {
                                     Manage your password and security settings
                                 </p>
                             </div>
-                            <div className="bg-[#EDEBE3] border border-[#EDEBE3] rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
+                            <div className="bg-sec border border-sec rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
                                 <form onSubmit={handleSecuritySubmit} className='flex flex-col gap-3 md:gap-5'>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <label htmlFor="currentPassword" className="flex flex-col gap-2 md:gap-3">

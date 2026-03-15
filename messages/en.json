@@ -28,17 +28,33 @@
       "doctors": "Doctors",
       "patients": "Patients",
       "allCases": "All Cases"
+    },
+    "nav": {
+      "overview": "Overview",
+      "doctors": "Doctors",
+      "patients": "Patients",
+      "allCases": "All Cases",
+      "analytics": "Analytics",
+      "caseReview": "Case Review",
+      "notification": "Notification",
+      "productCatalog": "Product Catalog",
+      "settings": "Settings"
     }
   },
-  "charts": {
-    "skinConcernsDistribution": "Skin Concerns Distribution",
-    "skinConcerns": {
-      "acne": "Acne",
-      "hyperpigmentation": "Hyperpigmentation",
-      "agingWrinkles": "Aging/Wrinkles",
-      "drySkin": "Dry Skin",
-      "rosacea": "Rosacea",
-      "other": "Other"
+  "doctor": {
+    "nav": {
+      "overview": "Overview",
+      "pendingApprovals": "Pending Approvals",
+      "approvedCases": "Approved Cases",
+      "rejectedCases": "Rejected Cases",
+      "caseReview": "Case Review",
+      "notification": "Notification",
+      "settings": "Settings"
+    },
+    "common": {
+      "loading": "Loading...",
+      "noData": "No data available",
+      "error": "An error occurred"
     }
   }
 }

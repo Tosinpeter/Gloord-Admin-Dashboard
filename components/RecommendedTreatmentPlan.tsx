@@ -16,7 +16,7 @@ const alternativeProducts = [
         id: 1,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Gentle",
-        intensityColor: "text-[#016630] bg-[#DCFCE7]",
+        intensityColor: "text-success-text bg-success-bg",
         description: "Gentle, non-foaming cleanser that maintains skin barrier",
         ingredients: ["Ceramides", "Hyaluronic Acid"],
         usage: "Morning & Evening",
@@ -27,7 +27,7 @@ const alternativeProducts = [
         id: 2,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Moderate",
-        intensityColor: "text-[#DC6803] bg-[#FEF0C7]",
+        intensityColor: "text-warning-text bg-warning-bg",
         description: "Deep cleansing formula that unclogs pores",
         ingredients: ["Salicylic Acid 2%"],
         usage: "Evening only",
@@ -38,7 +38,7 @@ const alternativeProducts = [
         id: 3,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Gentle",
-        intensityColor: "text-[#016630] bg-[#DCFCE7]",
+        intensityColor: "text-success-text bg-success-bg",
         description: "Gentle, non-foaming cleanser that maintains skin barrier",
         ingredients: ["Ceramides", "Hyaluronic Acid"],
         usage: "Morning & Evening",
@@ -49,7 +49,7 @@ const alternativeProducts = [
         id: 4,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Gentle",
-        intensityColor: "text-[#016630] bg-[#DCFCE7]",
+        intensityColor: "text-success-text bg-success-bg",
         description: "Gentle, non-foaming cleanser that maintains skin barrier",
         ingredients: ["Ceramides", "Hyaluronic Acid"],
         usage: "Morning & Evening",
@@ -74,7 +74,7 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Blurred backdrop */}
             <div
-                className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]"
+                className="fixed inset-0 bg-bg-overlay backdrop-blur-[16px]"
                 onClick={onClose}
                 aria-hidden="true"
             />
@@ -91,14 +91,14 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
                     <button
                         onClick={onClose}
                         aria-label="Close replace modal"
-                        className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors"
+                        className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
                 <div className="flex flex-col gap-3">
-                    <div className="bg-[#F6F0EE] rounded-md flex items-center gap-2 p-3">
+                    <div className="bg-bg-card rounded-md flex items-center gap-2 p-3">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clipPath="url(#clip0_77_8813)">
                                 <path d="M10.0003 18.3346C14.6027 18.3346 18.3337 14.6037 18.3337 10.0013C18.3337 5.39893 14.6027 1.66797 10.0003 1.66797C5.39795 1.66797 1.66699 5.39893 1.66699 10.0013C1.66699 14.6037 5.39795 18.3346 10.0003 18.3346Z" stroke="#CF604A" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
@@ -116,7 +116,7 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
 
                     <div className="flex flex-col gap-3 overflow-x-scroll">
                         {alternativeProducts.map((product) => (
-                            <div key={product.id} className="flex gap-4 p-5 border border-[#EDEBE3] rounded-xl hover:border-[#17B26A] hover:bg-[#F6FEF9] transition-all cursor-pointer group">
+                            <div key={product.id} className="flex gap-4 p-5 border border-border-light rounded-xl hover:border-border-hover hover:bg-bg-hover transition-all cursor-pointer group">
                                 <div className="w-[150px] text-base font-normal">
                                     {product.name}
                                 </div>
@@ -128,7 +128,7 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     {product.ingredients.map((ingredient, index) => (
-                                        <div key={index} className="w-max py-[7px] px-3 rounded-full bg-[#EDEBE3] font-normal text-xs">
+                                        <div key={index} className="w-max py-[7px] px-3 rounded-full bg-sec font-normal text-xs">
                                             {ingredient}
                                         </div>
                                     ))}
@@ -149,13 +149,13 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
                     <div className="flex justify-end gap-2 bg-white">
                         <button
                             onClick={onClose}
-                            className="px-5 py-2.5 text-base font-normal text-[#F04438] bg-[#FEE4E2] rounded-full transition-colors hover:bg-[#FECDCA]"
+                            className="px-5 py-2.5 text-base font-normal text-error-text bg-error-bg rounded-full transition-colors hover:bg-error-text-light"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={onClose}
-                            className="px-5 py-2.5 text-base font-normal text-white bg-[#17B26A] rounded-full transition-colors hover:bg-[#129955]"
+                            className="px-5 py-2.5 text-base font-normal text-white bg-btn-success rounded-full transition-colors hover:bg-btn-success-hover"
                         >
                             Confirm Replacement
                         </button>
@@ -212,7 +212,7 @@ const RejectModal = ({ isOpen, onClose, selectedPlan }: RejectModalProps) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Blurred backdrop */}
             <div
-                className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]"
+                className="fixed inset-0 bg-bg-overlay backdrop-blur-[16px]"
                 onClick={handleClose}
                 aria-hidden="true"
             />
@@ -229,7 +229,7 @@ const RejectModal = ({ isOpen, onClose, selectedPlan }: RejectModalProps) => {
                     <button
                         onClick={handleClose}
                         aria-label="Close reject modal"
-                        className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors"
+                        className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors"
                     >
                         <X size={18} />
                     </button>

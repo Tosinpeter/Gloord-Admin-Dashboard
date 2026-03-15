@@ -20,6 +20,33 @@
       "doctors": "Médecins",
       "patients": "Patients",
       "allCases": "Tous les cas"
+    },
+    "nav": {
+      "overview": "Aperçu",
+      "doctors": "Médecins",
+      "patients": "Patients",
+      "allCases": "Tous les cas",
+      "analytics": "Analyses",
+      "caseReview": "Révision des cas",
+      "notification": "Notification",
+      "productCatalog": "Catalogue de produits",
+      "settings": "Paramètres"
+    }
+  },
+  "doctor": {
+    "nav": {
+      "overview": "Aperçu",
+      "pendingApprovals": "Approbations en attente",
+      "approvedCases": "Cas approuvés",
+      "rejectedCases": "Cas rejetés",
+      "caseReview": "Révision des cas",
+      "notification": "Notification",
+      "settings": "Paramètres"
+    },
+    "common": {
+      "loading": "Chargement...",
+      "noData": "Aucune donnée disponible",
+      "error": "Une erreur s'est produite"
     }
   },
   "charts": {

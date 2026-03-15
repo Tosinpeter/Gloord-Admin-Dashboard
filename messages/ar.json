@@ -20,6 +20,33 @@
       "doctors": "الأطباء",
       "patients": "المرضى",
       "allCases": "كل الحالات"
+    },
+    "nav": {
+      "overview": "نظرة عامة",
+      "doctors": "الأطباء",
+      "patients": "المرضى",
+      "allCases": "كل الحالات",
+      "analytics": "التحليلات",
+      "caseReview": "مراجعة الحالات",
+      "notification": "الإشعارات",
+      "productCatalog": "كتالوج المنتجات",
+      "settings": "الإعدادات"
+    }
+  },
+  "doctor": {
+    "nav": {
+      "overview": "نظرة عامة",
+      "pendingApprovals": "الموافقات المعلقة",
+      "approvedCases": "الحالات المعتمدة",
+      "rejectedCases": "الحالات المرفوضة",
+      "caseReview": "مراجعة الحالات",
+      "notification": "الإشعارات",
+      "settings": "الإعدادات"
+    },
+    "common": {
+      "loading": "جارٍ التحميل...",
+      "noData": "لا توجد بيانات متاحة",
+      "error": "حدث خطأ"
     }
   },
   "charts": {

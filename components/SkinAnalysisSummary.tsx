@@ -8,9 +8,9 @@ const SkinAnalysisSummary = () => {
             <div className="flex flex-col gap-2">
                 <p className="text-sm font-normal">Detected Concerns</p>
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className='text-[#0A0A0A] border border-sec rounded-full bg-white py-2 px-4 text-[13px] font-normal'>Moderate acne</span>
-                    <span className='text-[#0A0A0A] border border-sec rounded-full bg-white py-2 px-4 text-[13px] font-normal'>Post-inflammatory hyperpigmentation</span>
-                    <span className='text-[#0A0A0A] border border-sec rounded-full bg-white py-2 px-4 text-[13px] font-normal'>Uneven skin tone</span>
+                    <span className='text-text-primary border border-sec rounded-full bg-white py-2 px-4 text-[13px] font-normal'>Moderate acne</span>
+                    <span className='text-text-primary border border-sec rounded-full bg-white py-2 px-4 text-[13px] font-normal'>Post-inflammatory hyperpigmentation</span>
+                    <span className='text-text-primary border border-sec rounded-full bg-white py-2 px-4 text-[13px] font-normal'>Uneven skin tone</span>
                 </div>
             </div>
             <div className="bg-sec h-[1px] w-full"></div>

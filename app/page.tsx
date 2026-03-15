@@ -83,7 +83,7 @@ export default function Home() {
 
     setLoginErrors((prev) => ({ ...prev, [role]: nextErrors }));
     if (Object.keys(nextErrors).length > 0) {
-      console.error(`Login validation failed for ${role}`, nextErrors)
+      console.log(`Login validation failed for ${role}`, nextErrors)
       return;
     }
 
