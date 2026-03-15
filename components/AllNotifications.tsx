@@ -123,7 +123,7 @@ const initialNotifications: Notification[] = [
 const AllNotifications = () => {
     const [notifications, setNotifications] = useState<Notification[]>(initialNotifications)
     const pathname = usePathname()
-    const basePath = pathname.startsWith('/admin') ? '/admin' : '/doctor'
+    const basePath = pathname ? (pathname.startsWith('/admin') ? '/admin' : '/doctor') : '/admin'
 
     const handleDelete = (id: number) => {
         setNotifications(prev => prev.filter(n => n.id !== id))

@@ -98,6 +98,19 @@ const statusConfig = {
 
 const Page = () => {
     const params = useParams()
+    if (!params || !params.id) {
+        return (
+            <div>
+                <div className="container mx-auto mb-20">
+                    <AdminHeader />
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                        <p className="text-lg text-gray-500">Patient not found</p>
+                        <Link href="/admin/patients" className="text-pry hover:underline text-sm">Back to Patients</Link>
+                    </div>
+                </div>
+            </div>
+        )
+    }
     const patientId = params.id as string
     const patient = patientsMap[patientId]
 
@@ -145,11 +158,10 @@ const Page = () => {
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center gap-3">
                                     <h1 className="text-2xl font-semibold text-gray-900">{patient.name}</h1>
-                                    <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${
-                                        patient.status === 'active'
+                                    <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${patient.status === 'active'
                                             ? 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]'
                                             : 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]'
-                                    }`}>
+                                        }`}>
                                         <span className={`size-1.5 rounded-full mr-1.5 ${patient.status === 'active' ? 'bg-[#17B26A]' : 'bg-[#F04438]'}`} />
                                         {patient.status === 'active' ? 'Active' : 'Inactive'}
                                     </span>

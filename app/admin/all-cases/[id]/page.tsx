@@ -122,6 +122,19 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; d
 
 const Page = () => {
     const params = useParams()
+    if (!params || !params.id) {
+        return (
+            <div>
+                <div className="container mx-auto mb-20">
+                    <AdminHeader />
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                        <p className="text-lg text-gray-500">Case not found</p>
+                        <Link href="/admin/all-cases" className="text-pry hover:underline text-sm">Back to All Cases</Link>
+                    </div>
+                </div>
+            </div>
+        )
+    }
     const caseId = params.id as string
     const caseData = casesMap[caseId] || { ...defaultCase, caseId }
 
@@ -270,9 +283,8 @@ const Page = () => {
                             <div className="flex flex-col gap-3">
                                 {caseData.recommendedTreatment.map((step, i) => (
                                     <div key={i} className="flex items-start gap-3">
-                                        <div className={`size-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                                            caseData.status === 'approved' ? 'bg-[#ECFDF3]' : caseData.status === 'rejected' ? 'bg-[#FEF3F2]' : 'bg-[#FFFAEB]'
-                                        }`}>
+                                        <div className={`size-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${caseData.status === 'approved' ? 'bg-[#ECFDF3]' : caseData.status === 'rejected' ? 'bg-[#FEF3F2]' : 'bg-[#FFFAEB]'
+                                            }`}>
                                             {caseData.status === 'approved' ? (
                                                 <CheckCircle2 size={14} className="text-[#17B26A]" />
                                             ) : caseData.status === 'rejected' ? (

@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl"
 import "./globals.css"
 import { DEFAULT_LOCALE, getLocaleDir, isAppLocale } from "@/lib/i18n"
 import OfflineBanner from "@/components/OfflineBanner"
+import Providers from "./providers"
 
 // Host Grotesk font configuration
 const hostGrotesk = Host_Grotesk({
@@ -49,8 +50,10 @@ export default async function RootLayout({
     >
       <body className="antialiased overflow-x-hidden">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <OfflineBanner />
-          {children}
+          <Providers>
+            <OfflineBanner />
+            {children}
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

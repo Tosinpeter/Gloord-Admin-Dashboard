@@ -1,32 +1,47 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react"
 import loginimage from '@/public/images/loginimage.png'
-import Image from "next/image";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import type { AppRole } from "@/lib/rbac";
-
-type LoginErrors = {
-  email?: string
-  password?: string
-}
+import Image from "next/image"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { loginSchema, type LoginFormValues } from "@/lib/schemas/auth"
+import { useUserStore } from "@/lib/store"
 
 export default function Home() {
-  const t = useTranslations("login");
+  const t = useTranslations("login")
+  const router = useRouter()
+  const setRole = useUserStore((state) => state.setRole)
+
   const [showPassword, setShowPassword] = useState({
     doctor: false,
-    admin: false
-  });
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const [isSubmittingRole, setIsSubmittingRole] = useState<AppRole | null>(null);
-  const [loginErrors, setLoginErrors] = useState<Record<AppRole, LoginErrors>>({
-    doctor: {},
-    admin: {},
-  });
-  const router = useRouter();
+    admin: false,
+  })
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
+  const [isSubmittingRole, setIsSubmittingRole] = useState<"doctor" | "admin" | null>(null)
+  const [selectedRole, setSelectedRole] = useState<"doctor" | "admin">("doctor")
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      role: "doctor",
+      email: "",
+      password: "",
+    },
+  })
+
+  useEffect(() => {
+    setValue("role", selectedRole)
+  }, [selectedRole, setValue])
 
   // Define hero slides with their content
   const heroSlides = [
@@ -58,45 +73,20 @@ export default function Home() {
   ];
 
   // Define the type for the role parameter
-  const togglePasswordVisibility = (role: 'doctor' | 'admin') => {
-    setShowPassword(prev => ({
+  const togglePasswordVisibility = (role: "doctor" | "admin") => {
+    setShowPassword((prev) => ({
       ...prev,
-      [role]: !prev[role]
-    }));
-  };
+      [role]: !prev[role],
+    }))
+  }
 
-  // Also add type for the role parameter in handleSubmit
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>, role: AppRole) => {
-    e.preventDefault();
-    if (isSubmittingRole) return;
+  const onSubmit = (values: LoginFormValues) => {
+    setIsSubmittingRole(values.role)
+    setRole(values.role)
+    document.cookie = `APP_ROLE=${values.role}; Path=/; SameSite=Lax`
 
-    const formData = new FormData(e.currentTarget);
-    const email = String(formData.get(`${role}-email`) ?? "").trim();
-    const password = String(formData.get(`${role}-password`) ?? "").trim();
-    const nextErrors: LoginErrors = {};
-
-    if (!email) nextErrors.email = "Email is required."
-    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Enter a valid email address."
-
-    if (!password) nextErrors.password = "Password is required."
-    else if (password.length < 6) nextErrors.password = "Password must be at least 6 characters."
-
-    setLoginErrors((prev) => ({ ...prev, [role]: nextErrors }));
-    if (Object.keys(nextErrors).length > 0) {
-      console.log(`Login validation failed for ${role}`, nextErrors)
-      return;
-    }
-
-    setIsSubmittingRole(role);
-    document.cookie = `APP_ROLE=${role}; Path=/; SameSite=Lax`;
-
-    // Redirect based on role
-    if (role === 'doctor') {
-      router.push('/doctor/overview');
-    } else if (role === 'admin') {
-      router.push('/admin/overview');
-    }
-  };
+    router.push(values.role === "doctor" ? "/doctor/overview" : "/admin/overview")
+  }
 
   const goToPreviousHero = () => {
     setCurrentHeroIndex((prev) =>
@@ -128,54 +118,54 @@ export default function Home() {
               <p className="text-base font-normal">{t("subtitle")}</p>
             </div>
             <div className="mt-3">
-              <Tabs defaultValue="doctor" className="w-full">
+              <Tabs
+                value={selectedRole}
+                onValueChange={(value) => setSelectedRole(value as "doctor" | "admin")}
+                className="w-full"
+              >
                 <TabsList className="bg-sec rounded-full mb-6">
                   <TabsTrigger value="doctor">{t("doctor")}</TabsTrigger>
                   <TabsTrigger value="admin">{t("adminOwner")}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="doctor">
-                  <form onSubmit={(e) => handleSubmit(e, 'doctor')} className="flex flex-col gap-4">
+                  <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <input type="hidden" {...register("role")} />
                     <label htmlFor="doctor-email" className="flex flex-col gap-3">
                       <span className="font-normal text-base">{t("email")}</span>
                       <input
+                        {...register("email")}
                         type="email"
                         id="doctor-email"
-                        name="doctor-email"
                         placeholder={t("emailPlaceholder")}
                         className="px-5 placeholder:text-[#344054] placeholder:font-normal h-[48px] w-full bg-sec border-none rounded-md focus:outline-none"
-                        required
-                        aria-invalid={!!loginErrors.doctor.email}
-                        onChange={() =>
-                          setLoginErrors((prev) => ({ ...prev, doctor: { ...prev.doctor, email: undefined } }))
-                        }
+                        aria-invalid={!!errors.email}
                       />
-                      {loginErrors.doctor.email && (
-                        <span className="text-sm text-[#B91C1C]">{loginErrors.doctor.email}</span>
+                      {errors.email && (
+                        <span className="text-sm text-[#B91C1C]">{errors.email.message}</span>
                       )}
                     </label>
                     <label htmlFor="doctor-password" className="flex flex-col gap-3">
                       <span className="font-normal text-base">{t("password")}</span>
                       <div className="flex items-center gap-2 px-5 h-12 w-full bg-sec rounded-md">
                         <input
+                          {...register("password")}
                           type={showPassword.doctor ? "text" : "password"}
                           id="doctor-password"
-                          name="doctor-password"
                           placeholder="********"
                           className="bg-transparent w-full h-full placeholder:text-[#344054] placeholder:font-normal border-none focus:outline-none"
-                          required
-                          aria-invalid={!!loginErrors.doctor.password}
-                          onChange={() =>
-                            setLoginErrors((prev) => ({ ...prev, doctor: { ...prev.doctor, password: undefined } }))
-                          }
+                          aria-invalid={!!errors.password}
                         />
                         <button
                           type="button"
-                          onClick={() => togglePasswordVisibility('doctor')}
+                          onClick={() => togglePasswordVisibility("doctor")}
                           className="w-12 flex items-center justify-center bg-transparent text-[#344054] focus:outline-none"
                         >
                           {showPassword.doctor ? <Eye size={20} /> : <EyeOff size={20} />}
                         </button>
                       </div>
+                      {errors.password && (
+                        <span className="text-sm text-[#B91C1C]">{errors.password.message}</span>
+                      )}
                     </label>
                     <div className="mt-4">
                       <button
@@ -186,54 +176,47 @@ export default function Home() {
                         {isSubmittingRole === "doctor" ? "Signing in..." : t("signIn")}
                       </button>
                     </div>
-                    {loginErrors.doctor.password && (
-                      <p className="text-sm text-[#B91C1C]">{loginErrors.doctor.password}</p>
-                    )}
                   </form>
                 </TabsContent>
                 <TabsContent value="admin">
-                  <form onSubmit={(e) => handleSubmit(e, 'admin')} className="flex flex-col gap-4">
+                  <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <input type="hidden" {...register("role")} />
                     <label htmlFor="admin-email" className="flex flex-col gap-3">
                       <span className="font-normal text-base">{t("email")}</span>
                       <input
+                        {...register("email")}
                         type="email"
                         id="admin-email"
-                        name="admin-email"
                         placeholder={t("emailPlaceholder")}
                         className="px-5 placeholder:text-[#344054] placeholder:font-normal h-[48px] w-full bg-sec border-none rounded-md focus:outline-none"
-                        required
-                        aria-invalid={!!loginErrors.admin.email}
-                        onChange={() =>
-                          setLoginErrors((prev) => ({ ...prev, admin: { ...prev.admin, email: undefined } }))
-                        }
+                        aria-invalid={!!errors.email}
                       />
-                      {loginErrors.admin.email && (
-                        <span className="text-sm text-[#B91C1C]">{loginErrors.admin.email}</span>
+                      {errors.email && (
+                        <span className="text-sm text-[#B91C1C]">{errors.email.message}</span>
                       )}
                     </label>
                     <label htmlFor="admin-password" className="flex flex-col gap-3">
                       <span className="font-normal text-base">{t("password")}</span>
                       <div className="flex items-center gap-2 px-5 h-12 w-full bg-sec rounded-md">
                         <input
+                          {...register("password")}
                           type={showPassword.admin ? "text" : "password"}
                           id="admin-password"
-                          name="admin-password"
                           placeholder="********"
                           className="bg-transparent w-full h-full placeholder:text-[#344054] placeholder:font-normal border-none focus:outline-none"
-                          required
-                          aria-invalid={!!loginErrors.admin.password}
-                          onChange={() =>
-                            setLoginErrors((prev) => ({ ...prev, admin: { ...prev.admin, password: undefined } }))
-                          }
+                          aria-invalid={!!errors.password}
                         />
                         <button
                           type="button"
-                          onClick={() => togglePasswordVisibility('admin')}
+                          onClick={() => togglePasswordVisibility("admin")}
                           className="w-12 flex items-center justify-center bg-transparent text-[#344054] focus:outline-none"
                         >
                           {showPassword.admin ? <Eye size={20} /> : <EyeOff size={20} />}
                         </button>
                       </div>
+                      {errors.password && (
+                        <span className="text-sm text-[#B91C1C]">{errors.password.message}</span>
+                      )}
                     </label>
                     <div className="mt-4">
                       <button
@@ -244,9 +227,6 @@ export default function Home() {
                         {isSubmittingRole === "admin" ? "Signing in..." : t("signIn")}
                       </button>
                     </div>
-                    {loginErrors.admin.password && (
-                      <p className="text-sm text-[#B91C1C]">{loginErrors.admin.password}</p>
-                    )}
                   </form>
                 </TabsContent>
               </Tabs>
