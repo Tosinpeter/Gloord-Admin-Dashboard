@@ -4,6 +4,10 @@ import { ArrowLeft, Calendar, CheckCircle2, Clock, FileText, Heart, Mail, MapPin
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useTranslations } from "next-intl"
+import { useMemo } from "react"
+import type { ColumnDef } from "@tanstack/react-table"
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import {
     Table,
     TableBody,
@@ -91,15 +95,84 @@ const defaultCases: CaseRecord[] = [
 ]
 
 const statusConfig = {
-    approved: { label: 'Approved', color: 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]' },
-    pending: { label: 'Pending', color: 'text-[#93370D] bg-[#FEF3C6] border-[#FEE685]' },
-    rejected: { label: 'Rejected', color: 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]' },
+    approved: { labelKey: 'caseStatus.approved', color: 'text-success bg-success-bg border-success-border' },
+    pending: { labelKey: 'caseStatus.pending', color: 'text-warning-text-alt bg-warning-bg border-warning-border' },
+    rejected: { labelKey: 'caseStatus.rejected', color: 'text-error-text-alt bg-error-bg-alt border-error-soft-border' },
 }
 
 const Page = () => {
+    const t = useTranslations("admin.patients")
     const params = useParams()
     const patientId = params.id as string
     const patient = patientsMap[patientId]
+
+    const cases = casesMap[patientId] || defaultCases
+
+    const columns = useMemo<ColumnDef<CaseRecord>[]>(
+        () => [
+            {
+                accessorKey: "id",
+                header: t("table.case"),
+                cell: ({ row }) => (
+                    <Link href="/admin/case-review" className="text-sm font-medium text-pry hover:underline">{row.original.id}</Link>
+                ),
+            },
+            {
+                accessorKey: "doctor",
+                header: t("table.doctor"),
+                cell: ({ row }) => <span className="text-sm text-gray-700">{row.original.doctor}</span>,
+            },
+            {
+                accessorKey: "condition",
+                header: t("table.condition"),
+                cell: ({ row }) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">{row.original.condition}</span>
+                        <span className="text-xs text-gray-400">{row.original.treatment}</span>
+                    </div>
+                ),
+            },
+            {
+                accessorKey: "confidence",
+                header: t("table.aiConf"),
+                cell: ({ row }) => (
+                    <span className={`text-sm font-medium ${row.original.confidence >= 90
+                        ? 'text-success-accent'
+                        : row.original.confidence >= 80
+                          ? 'text-warning-dot'
+                          : 'text-error-accent'
+                    }`}>
+                        {row.original.confidence}%
+                    </span>
+                ),
+            },
+            {
+                accessorKey: "status",
+                header: t("table.status"),
+                cell: ({ row }) => {
+                    const sc = statusConfig[row.original.status]
+                    return (
+                        <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${sc.color}`}>
+                            {t(sc.labelKey)}
+                        </span>
+                    )
+                },
+            },
+            {
+                accessorKey: "date",
+                header: t("table.date"),
+                cell: ({ row }) => <span className="text-sm text-gray-500">{row.original.date}</span>,
+            },
+        ],
+        [t],
+    )
+
+    const table = useReactTable<CaseRecord>({
+        data: cases,
+        columns,
+        getRowId: (row) => row.id,
+        getCoreRowModel: getCoreRowModel(),
+    })
 
     if (!patient) {
         return (
@@ -107,22 +180,21 @@ const Page = () => {
                 <div className="container mx-auto mb-20">
                     <AdminHeader />
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
-                        <p className="text-lg text-gray-500">Patient not found</p>
-                        <Link href="/admin/patients" className="text-pry hover:underline text-sm">Back to Patients</Link>
+                        <p className="text-lg text-gray-500">{t("notFound")}</p>
+                        <Link href="/admin/patients" className="text-pry hover:underline text-sm">{t("backToPatients")}</Link>
                     </div>
                 </div>
             </div>
         )
     }
 
-    const cases = casesMap[patientId] || defaultCases
     const approvalRate = patient.totalCases > 0 ? Math.round((patient.approved / patient.totalCases) * 100) : 0
 
     const stats = [
-        { label: 'Total Cases', value: patient.totalCases, icon: FileText, color: 'text-gray-700', bg: 'bg-[#F5F5F0]' },
-        { label: 'Approved', value: patient.approved, icon: CheckCircle2, color: 'text-[#17B26A]', bg: 'bg-[#ECFDF3]' },
-        { label: 'Pending', value: patient.pending, icon: Clock, color: 'text-[#F79009]', bg: 'bg-[#FFFAEB]' },
-        { label: 'Rejected', value: patient.rejected, icon: XCircle, color: 'text-[#F04438]', bg: 'bg-[#FEF3F2]' },
+        { labelKey: 'stats.totalCases', value: patient.totalCases, icon: FileText, color: 'text-gray-700', bg: 'bg-surface-muted' },
+        { labelKey: 'stats.approved', value: patient.approved, icon: CheckCircle2, color: 'text-success-accent', bg: 'bg-success-pale' },
+        { labelKey: 'stats.pending', value: patient.pending, icon: Clock, color: 'text-warning-dot', bg: 'bg-warning-bg-light' },
+        { labelKey: 'stats.rejected', value: patient.rejected, icon: XCircle, color: 'text-error-accent', bg: 'bg-error-bg-light' },
     ]
 
     return (
@@ -130,16 +202,16 @@ const Page = () => {
             <div className="container mx-auto mb-20">
                 <AdminHeader />
 
-                <Link href="/admin/patients" className="mb-6 w-fit flex items-center text-sm gap-2 rounded-full py-2 px-4 bg-[#EDEBE3] hover:bg-[#E0DED6] transition-colors">
+                <Link href="/admin/patients" className="mb-6 w-fit flex items-center text-sm gap-2 rounded-full py-2 px-4 bg-sec hover:bg-sec-hover transition-colors">
                     <ArrowLeft size={16} />
-                    Back to Patients
+                    {t("backToPatients")}
                 </Link>
 
                 {/* Profile Header */}
-                <div className="border border-[#EDEBE3] rounded-2xl p-6 md:p-8 mt-4">
+                <div className="border border-sec rounded-2xl p-6 md:p-8 mt-4">
                     <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
                         <div className="flex gap-5 items-center">
-                            <div className="size-20 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                            <div className="size-20 rounded-full overflow-hidden bg-sec shrink-0">
                                 <Image src={patient.image} width={80} height={80} alt={patient.name} className="size-20 object-cover rounded-full" />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -147,21 +219,23 @@ const Page = () => {
                                     <h1 className="text-2xl font-semibold text-gray-900">{patient.name}</h1>
                                     <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${
                                         patient.status === 'active'
-                                            ? 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]'
-                                            : 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]'
+                                            ? 'text-success bg-success-bg border-success-border'
+                                            : 'text-error-text-alt bg-error-bg-alt border-error-soft-border'
                                     }`}>
-                                        <span className={`size-1.5 rounded-full mr-1.5 ${patient.status === 'active' ? 'bg-[#17B26A]' : 'bg-[#F04438]'}`} />
-                                        {patient.status === 'active' ? 'Active' : 'Inactive'}
+                                        <span className={`size-1.5 rounded-full mr-1.5 ${patient.status === 'active' ? 'bg-success-accent' : 'bg-error-accent'}`} />
+                                        {patient.status === 'active' ? t("status.active") : t("status.inactive")}
                                     </span>
                                 </div>
                                 <p className="text-sm text-gray-500">{patient.gender} &middot; {patient.age} years &middot; {patient.concern}</p>
-                                <p className="text-sm text-gray-400">{patient.id} &middot; Registered: {patient.registeredDate}</p>
+                                <p className="text-sm text-gray-400">
+                                    {patient.id} &middot; {t("registeredLabel", { date: patient.registeredDate })}
+                                </p>
                             </div>
                         </div>
                         <div className="flex flex-col items-end gap-1">
                             <div className="text-right">
                                 <p className="text-3xl font-bold text-pry">{approvalRate}%</p>
-                                <p className="text-xs text-gray-400">Approval Rate</p>
+                                <p className="text-xs text-gray-400">{t("approvalRateLabel")}</p>
                             </div>
                         </div>
                     </div>
@@ -170,9 +244,9 @@ const Page = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
                     {stats.map((stat) => (
-                        <div key={stat.label} className={`${stat.bg} rounded-2xl p-5 flex flex-col gap-3`}>
+                        <div key={stat.labelKey} className={`${stat.bg} rounded-2xl p-5 flex flex-col gap-3`}>
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.label}</span>
+                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">{t(stat.labelKey)}</span>
                                 <stat.icon size={18} className={stat.color} />
                             </div>
                             <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
@@ -182,69 +256,69 @@ const Page = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
                     {/* Patient Info */}
-                    <div className="border border-[#EDEBE3] rounded-2xl p-6 flex flex-col gap-5 lg:col-span-1">
-                        <h3 className="text-base font-semibold text-gray-900">Patient Information</h3>
+                    <div className="border border-sec rounded-2xl p-6 flex flex-col gap-5 lg:col-span-1">
+                        <h3 className="text-base font-semibold text-gray-900">{t("patientInformationTitle")}</h3>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Mail size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Email</span>
+                                    <span className="text-xs text-gray-400">{t("fields.email")}</span>
                                     <span className="text-sm text-gray-700">{patient.email}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Phone size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Phone</span>
+                                    <span className="text-xs text-gray-400">{t("fields.phone")}</span>
                                     <span className="text-sm text-gray-700">{patient.phone}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <MapPin size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Address</span>
+                                    <span className="text-xs text-gray-400">{t("fields.address")}</span>
                                     <span className="text-sm text-gray-700">{patient.address}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Calendar size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Date of Birth</span>
+                                    <span className="text-xs text-gray-400">{t("fields.dateOfBirth")}</span>
                                     <span className="text-sm text-gray-700">{patient.dateOfBirth}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Heart size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Blood Type</span>
+                                    <span className="text-xs text-gray-400">{t("fields.bloodType")}</span>
                                     <span className="text-sm text-gray-700">{patient.bloodType}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <User size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Allergies</span>
+                                    <span className="text-xs text-gray-400">{t("fields.allergies")}</span>
                                     <span className="text-sm text-gray-700">{patient.allergies}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Clock size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-400">Last Visit</span>
+                                    <span className="text-xs text-gray-400">{t("fields.lastVisit")}</span>
                                     <span className="text-sm text-gray-700">{patient.lastVisit}</span>
                                 </div>
                             </div>
@@ -252,31 +326,39 @@ const Page = () => {
                     </div>
 
                     {/* Case History */}
-                    <div className="border border-[#EDEBE3] rounded-2xl overflow-hidden lg:col-span-2">
-                        <div className="px-6 py-5 border-b border-[#EDEBE3]">
-                            <h3 className="text-base font-semibold text-gray-900">Case History</h3>
-                            <p className="text-xs text-gray-400 mt-0.5">All treatment cases for this patient</p>
+                    <div className="border border-sec rounded-2xl overflow-hidden lg:col-span-2">
+                        <div className="px-6 py-5 border-b border-sec">
+                            <h3 className="text-base font-semibold text-gray-900">{t("caseHistory.title")}</h3>
+                            <p className="text-xs text-gray-400 mt-0.5">{t("caseHistory.subtitle")}</p>
                         </div>
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-[#FAFAF8] hover:bg-[#FAFAF8]">
-                                    <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">Case</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Doctor</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Condition</TableHead>
-                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">AI Conf.</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Status</TableHead>
-                                    <TableHead className="pr-6 font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Date</TableHead>
+                                <TableRow className="bg-surface-variant hover:bg-surface-variant">
+                                    <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.case")}</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.doctor")}</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">{t("table.condition")}</TableHead>
+                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">{t("table.aiConf")}</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.status")}</TableHead>
+                                    <TableHead className="pr-6 font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">{t("table.date")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {cases.map((c) => {
+                                {table.getRowModel().rows.map((row) => {
+                                    const c = row.original
                                     const sc = statusConfig[c.status]
                                     return (
-                                        <TableRow key={c.id} className="hover:bg-[#FAFAF8]">
+                                        <TableRow key={c.id} className="hover:bg-surface-variant">
                                             <TableCell className="pl-6">
-                                                <Link href="/admin/case-review" className="text-sm font-medium text-pry hover:underline">{c.id}</Link>
+                                                <Link
+                                                    href="/admin/case-review"
+                                                    className="text-sm font-medium text-pry hover:underline"
+                                                >
+                                                    {c.id}
+                                                </Link>
                                             </TableCell>
-                                            <TableCell><span className="text-sm text-gray-700">{c.doctor}</span></TableCell>
+                                            <TableCell>
+                                                <span className="text-sm text-gray-700">{c.doctor}</span>
+                                            </TableCell>
                                             <TableCell className="hidden md:table-cell">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm text-gray-600">{c.condition}</span>
@@ -284,16 +366,28 @@ const Page = () => {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-center hidden lg:table-cell">
-                                                <span className={`text-sm font-medium ${c.confidence >= 90 ? 'text-[#17B26A]' : c.confidence >= 80 ? 'text-[#F79009]' : 'text-[#F04438]'}`}>
+                                                <span
+                                                    className={`text-sm font-medium ${
+                                                        c.confidence >= 90
+                                                            ? "text-success-accent"
+                                                            : c.confidence >= 80
+                                                              ? "text-warning-dot"
+                                                              : "text-error-accent"
+                                                    }`}
+                                                >
                                                     {c.confidence}%
                                                 </span>
                                             </TableCell>
                                             <TableCell>
-                                                <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${sc.color}`}>
-                                                    {sc.label}
+                                                <span
+                                                    className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${sc.color}`}
+                                                >
+                                                    {t(sc.labelKey)}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="pr-6 hidden md:table-cell"><span className="text-sm text-gray-500">{c.date}</span></TableCell>
+                                            <TableCell className="pr-6 hidden md:table-cell">
+                                                <span className="text-sm text-gray-500">{c.date}</span>
+                                            </TableCell>
                                         </TableRow>
                                     )
                                 })}

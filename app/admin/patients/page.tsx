@@ -1,7 +1,15 @@
 'use client'
 import AdminHeader from '@/components/admin/AdminHeader'
 import { ChevronLeft, ChevronRight, EllipsisVertical, ListFilter, Search } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import {
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
 import {
     Table,
     TableBody,
@@ -12,7 +20,8 @@ import {
 } from "@/components/ui/table"
 import Image from 'next/image'
 import Link from 'next/link'
-import { readCachedJson, writeCachedJson } from '@/lib/cache'
+import { useAdminStore } from '@/lib/admin-store'
+import { trpc } from '@/lib/trpc'
 
 interface Patient {
     id: string;
@@ -37,7 +46,6 @@ interface Filter {
 }
 
 const ROWS_PER_PAGE = 8
-const PATIENTS_CACHE_KEY = 'admin_patients_cache_v1'
 
 const patientsData: Patient[] = [
     { id: 'P-45123', name: 'Sarah Johnson', email: 'sarah.j@mail.com', phone: '+1 (555) 123-4567', age: 28, gender: 'Female', concern: 'Eczema', totalCases: 3, approved: 2, pending: 1, rejected: 0, lastVisit: 'Jan 24, 2026', status: 'active', image: '/images/patientimage.png' },
@@ -59,10 +67,10 @@ const patientsData: Patient[] = [
 
 const Page = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false)
-    const [selectedFilter, setSelectedFilter] = useState('all')
-    const [searchQuery, setSearchQuery] = useState('')
-    const [currentPage, setCurrentPage] = useState(1)
-    const [patients, setPatients] = useState<Patient[]>(patientsData)
+    const { patientsSearch, patientsStatus, patientsPagination, patientsSorting, setPatientsSearch, setPatientsStatus, setPatientsPagination, setPatientsSorting } = useAdminStore()
+    const { data: patients = patientsData } = trpc.patients.list.useQuery(undefined, {
+        initialData: patientsData,
+    })
     const [isOffline, setIsOffline] = useState(false)
     const [isReadOnly, setIsReadOnly] = useState(false)
     const [openMenuId, setOpenMenuId] = useState<string | null>(null)
@@ -77,40 +85,74 @@ const Page = () => {
     ]
 
     const handleFilterSelect = (filter: string) => {
-        setSelectedFilter(filter)
+        setPatientsStatus(filter as "all" | "active" | "inactive")
         setIsFilterOpen(false)
-        setCurrentPage(1)
+        setPatientsPagination({ pageIndex: 0, pageSize: patientsPagination.pageSize })
     }
 
-    const filteredPatients = patients.filter(patient => {
-        const matchesFilter = selectedFilter === 'all' || patient.status === selectedFilter
-        const matchesSearch = patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            patient.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            patient.concern.toLowerCase().includes(searchQuery.toLowerCase())
-        return matchesFilter && matchesSearch
-    })
+    const columnFilters = patientsStatus === "all" ? [] : [{ id: "status", value: patientsStatus }]
 
-    const totalPages = Math.ceil(filteredPatients.length / ROWS_PER_PAGE)
-    const effectiveCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1
-    const paginatedPatients = filteredPatients.slice(
-        (effectiveCurrentPage - 1) * ROWS_PER_PAGE,
-        effectiveCurrentPage * ROWS_PER_PAGE,
+    const columns = useMemo<ColumnDef<Patient>[]>(
+        () => [
+            { accessorKey: "name", header: "Patient", enableSorting: true },
+            { accessorKey: "concern", header: "Concern" },
+            { accessorKey: "age", header: "Age", enableSorting: true },
+            { accessorKey: "totalCases", header: "Cases" },
+            { accessorKey: "approved", header: "Approved" },
+            { accessorKey: "pending", header: "Pending" },
+            { accessorKey: "lastVisit", header: "Last Visit" },
+            {
+                accessorKey: "status",
+                header: "Status",
+                enableSorting: true,
+                enableColumnFilter: true,
+                filterFn: (row, _columnId, value) => {
+                    return row.original.status === value
+                },
+            },
+        ],
+        [],
     )
 
-    useEffect(() => {
-        const cachedPatients = readCachedJson<Patient[]>(PATIENTS_CACHE_KEY)
-        if (cachedPatients?.length) {
-            setTimeout(() => {
-                setPatients(cachedPatients)
-            }, 0)
-        } else {
-            writeCachedJson(PATIENTS_CACHE_KEY, patientsData)
-        }
+    const table = useReactTable<Patient>({
+        data: patients as Patient[],
+        columns,
+        getRowId: (row) => row.id,
+        state: {
+            sorting: patientsSorting,
+            globalFilter: patientsSearch,
+            columnFilters,
+            pagination: patientsPagination,
+        },
+        onSortingChange: setPatientsSorting,
+        onPaginationChange: setPatientsPagination,
+        onGlobalFilterChange: setPatientsSearch,
+        onColumnFiltersChange: () => {},
+        globalFilterFn: (row, _columnId, filterValue) => {
+            const query = String(filterValue ?? "").toLowerCase().trim()
+            if (!query) return true
+            return (
+                row.original.name.toLowerCase().includes(query) ||
+                row.original.id.toLowerCase().includes(query) ||
+                row.original.concern.toLowerCase().includes(query)
+            )
+        },
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    })
 
+    const filteredPatients = table.getFilteredRowModel().rows.map((row) => row.original)
+    const paginatedPatients = table.getRowModel().rows.map((row) => row.original)
+    const totalPages = table.getPageCount()
+    const effectiveCurrentPage = table.getState().pagination.pageIndex + 1
+
+    useEffect(() => {
         const syncConnectivity = () => {
             const offline = !window.navigator.onLine
             setIsOffline(offline)
-            setIsReadOnly(offline && !!readCachedJson<Patient[]>(PATIENTS_CACHE_KEY)?.length)
+            setIsReadOnly(false)
         }
 
         syncConnectivity()
@@ -154,12 +196,12 @@ const Page = () => {
                             {patients.length} patients &middot; {activeCount} active &middot; {inactiveCount} inactive
                         </p>
                         {isReadOnly && (
-                            <p className='text-sm text-[#9A3412]'>
+                            <p className='text-sm text-warning-text-offline'>
                                 Offline mode: cached patient data is read-only until connection is restored.
                             </p>
                         )}
                         {isOffline && !isReadOnly && (
-                            <p className='text-sm text-[#9A3412]'>
+                            <p className='text-sm text-warning-text-offline'>
                                 You are offline. Actions that require network may fail.
                             </p>
                         )}
@@ -168,25 +210,28 @@ const Page = () => {
                     {/* Toolbar */}
                     <div className="flex flex-col md:flex-row items-start gap-3 md:items-center justify-between">
                         <div className="flex flex-wrap gap-2 items-start md:items-center">
-                            <div className="flex items-center gap-2 border border-[#EDEBE3] bg-white w-[280px] h-[42px] rounded-full px-4">
+                            <div className="flex items-center gap-2 border border-sec bg-white w-[280px] h-[42px] rounded-full px-4">
                                 <Search size={18} className="text-gray-400" />
                                 <input
                                     type="search"
                                     placeholder='Search by name, ID, or concern...'
                                     className='border-none h-full w-full focus:outline-none bg-transparent text-sm'
-                                    value={searchQuery}
-                                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
+                                    value={patientsSearch}
+                                    onChange={(e) => {
+                                        setPatientsSearch(e.target.value)
+                                        setPatientsPagination({ pageIndex: 0, pageSize: patientsPagination.pageSize })
+                                    }}
                                 />
                             </div>
                             <div className="relative">
                                 <button
                                     ref={filterButtonRef}
                                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                                    className="flex items-center gap-2 border border-[#EDEBE3] bg-white w-max h-[42px] rounded-full px-4 hover:bg-gray-50 transition-colors"
+                                    className="flex items-center gap-2 border border-sec bg-white w-max h-[42px] rounded-full px-4 hover:bg-gray-50 transition-colors"
                                 >
                                     <ListFilter size={18} />
                                     <span className='text-sm font-normal w-max'>
-                                        {filters.find(f => f.value === selectedFilter)?.label || 'Filter'}
+                                        {filters.find(f => f.value === patientsStatus)?.label || 'Filter'}
                                     </span>
                                 </button>
                                 <div ref={filterDropdownRef}>
@@ -197,7 +242,7 @@ const Page = () => {
                                                     <button
                                                         key={filter.value}
                                                         onClick={() => handleFilterSelect(filter.value)}
-                                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${selectedFilter === filter.value ? 'bg-[#EDEBE3] font-medium' : 'hover:bg-gray-50'}`}
+                                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${patientsStatus === filter.value ? 'bg-sec font-medium' : 'hover:bg-gray-50'}`}
                                                     >
                                                         {filter.label}
                                                     </button>
@@ -211,27 +256,57 @@ const Page = () => {
                     </div>
 
                     {/* Table */}
-                    <div className="border border-[#EDEBE3] rounded-2xl overflow-hidden">
+                    <div className="border border-sec rounded-2xl overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-[#FAFAF8] hover:bg-[#FAFAF8]">
-                                    <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">Patient</TableHead>
+                                <TableRow className="bg-surface-variant hover:bg-surface-variant">
+                                    <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">
+                                        <button
+                                            type="button"
+                                            onClick={table.getColumn("name")?.getToggleSortingHandler()}
+                                            className="inline-flex items-center gap-2"
+                                        >
+                                            Patient
+                                            {table.getColumn("name")?.getIsSorted() === "asc" ? "▲" : null}
+                                            {table.getColumn("name")?.getIsSorted() === "desc" ? "▼" : null}
+                                        </button>
+                                    </TableHead>
                                     <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Concern</TableHead>
-                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider">Age</TableHead>
+                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider">
+                                        <button
+                                            type="button"
+                                            onClick={table.getColumn("age")?.getToggleSortingHandler()}
+                                            className="inline-flex items-center gap-2 justify-center"
+                                        >
+                                            Age
+                                            {table.getColumn("age")?.getIsSorted() === "asc" ? "▲" : null}
+                                            {table.getColumn("age")?.getIsSorted() === "desc" ? "▼" : null}
+                                        </button>
+                                    </TableHead>
                                     <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider">Cases</TableHead>
                                     <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Approved</TableHead>
                                     <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">Pending</TableHead>
                                     <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Visit</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Status</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">
+                                        <button
+                                            type="button"
+                                            onClick={table.getColumn("status")?.getToggleSortingHandler()}
+                                            className="inline-flex items-center gap-2"
+                                        >
+                                            Status
+                                            {table.getColumn("status")?.getIsSorted() === "asc" ? "▲" : null}
+                                            {table.getColumn("status")?.getIsSorted() === "desc" ? "▼" : null}
+                                        </button>
+                                    </TableHead>
                                     <TableHead className="pr-6 w-10"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {paginatedPatients.map((patient) => (
-                                    <TableRow key={patient.id} className="hover:bg-[#FAFAF8] group">
+                                    <TableRow key={patient.id} className="hover:bg-surface-variant group">
                                         <TableCell className="pl-6">
                                             <Link href={`/admin/patients/${patient.id}`} className="flex items-center gap-3">
-                                                <div className="size-9 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                                                <div className="size-9 rounded-full overflow-hidden bg-sec shrink-0">
                                                     <Image src={patient.image} width={36} height={36} alt={patient.name} className='size-9 object-cover rounded-full' />
                                                 </div>
                                                 <div className="flex flex-col">
@@ -250,10 +325,10 @@ const Page = () => {
                                             <span className="text-sm font-medium text-gray-900">{patient.totalCases}</span>
                                         </TableCell>
                                         <TableCell className="text-center hidden md:table-cell">
-                                            <span className="text-sm text-[#17B26A]">{patient.approved}</span>
+                                            <span className="text-sm text-success-accent">{patient.approved}</span>
                                         </TableCell>
                                         <TableCell className="text-center hidden lg:table-cell">
-                                            <span className="text-sm text-[#F79009]">{patient.pending}</span>
+                                            <span className="text-sm text-warning-dot">{patient.pending}</span>
                                         </TableCell>
                                         <TableCell className="hidden lg:table-cell">
                                             <span className="text-sm text-gray-500">{patient.lastVisit}</span>
@@ -261,10 +336,10 @@ const Page = () => {
                                         <TableCell>
                                             <span className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-medium border ${
                                                 patient.status === 'active'
-                                                    ? 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]'
-                                                    : 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]'
+                                                    ? 'text-success bg-success-bg border-success-border'
+                                                    : 'text-error-text-alt bg-error-bg-alt border-error-soft-border'
                                             }`}>
-                                                <span className={`size-1.5 rounded-full mr-1.5 ${patient.status === 'active' ? 'bg-[#17B26A]' : 'bg-[#F04438]'}`} />
+                                                <span className={`size-1.5 rounded-full mr-1.5 ${patient.status === 'active' ? 'bg-success-accent' : 'bg-error-accent'}`} />
                                                 {patient.status === 'active' ? 'Active' : 'Inactive'}
                                             </span>
                                         </TableCell>
@@ -273,7 +348,7 @@ const Page = () => {
                                                 <button
                                                     type="button"
                                                     onClick={(e) => { e.preventDefault(); setOpenMenuId(openMenuId === patient.id ? null : patient.id) }}
-                                                    className="size-8 flex items-center justify-center rounded-lg hover:bg-[#EDEBE3] transition-colors"
+                                                    className="size-8 flex items-center justify-center rounded-lg hover:bg-sec transition-colors"
                                                 >
                                                     <EllipsisVertical size={16} className='text-gray-400' />
                                                 </button>
@@ -311,16 +386,16 @@ const Page = () => {
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between px-6 py-4 border-t border-[#EDEBE3]">
+                                <div className="flex items-center justify-between px-6 py-4 border-t border-sec">
                                 <p className="text-sm text-gray-500">
                                     Showing {(effectiveCurrentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(effectiveCurrentPage * ROWS_PER_PAGE, filteredPatients.length)} of {filteredPatients.length}
                                 </p>
                                 <div className="flex items-center gap-1">
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(Math.max(1, effectiveCurrentPage - 1))}
+                                        onClick={() => table.previousPage()}
                                         disabled={effectiveCurrentPage === 1}
-                                        className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                        className="size-8 flex items-center justify-center rounded-lg border border-sec hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronLeft size={16} />
                                     </button>
@@ -328,8 +403,8 @@ const Page = () => {
                                         <button
                                             key={page}
                                             type="button"
-                                            onClick={() => setCurrentPage(page)}
-                                            className={`size-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                                            onClick={() => table.setPageIndex(page - 1)}
+                                        className={`size-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                                                 page === effectiveCurrentPage
                                                     ? 'bg-pry text-white'
                                                     : 'hover:bg-gray-50 text-gray-600'
@@ -340,9 +415,9 @@ const Page = () => {
                                     ))}
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(Math.min(totalPages, effectiveCurrentPage + 1))}
+                                        onClick={() => table.nextPage()}
                                         disabled={effectiveCurrentPage === totalPages}
-                                        className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                        className="size-8 flex items-center justify-center rounded-lg border border-sec hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronRight size={16} />
                                     </button>

@@ -2,6 +2,9 @@
 import { CircleX, X, PenLine } from 'lucide-react'
 import React, { useState } from 'react'
 import { useAccessibleModal } from '@/lib/useAccessibleModal'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 // Define the Plan type
 interface Plan {
@@ -16,7 +19,7 @@ const alternativeProducts = [
         id: 1,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Gentle",
-        intensityColor: "text-[#016630] bg-[#DCFCE7]",
+        intensityColor: "text-success bg-success-bg",
         description: "Gentle, non-foaming cleanser that maintains skin barrier",
         ingredients: ["Ceramides", "Hyaluronic Acid"],
         usage: "Morning & Evening",
@@ -27,7 +30,7 @@ const alternativeProducts = [
         id: 2,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Moderate",
-        intensityColor: "text-[#DC6803] bg-[#FEF0C7]",
+        intensityColor: "text-orange-accent bg-orange-bg",
         description: "Deep cleansing formula that unclogs pores",
         ingredients: ["Salicylic Acid 2%"],
         usage: "Evening only",
@@ -38,7 +41,7 @@ const alternativeProducts = [
         id: 3,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Gentle",
-        intensityColor: "text-[#016630] bg-[#DCFCE7]",
+        intensityColor: "text-success bg-success-bg",
         description: "Gentle, non-foaming cleanser that maintains skin barrier",
         ingredients: ["Ceramides", "Hyaluronic Acid"],
         usage: "Morning & Evening",
@@ -49,7 +52,7 @@ const alternativeProducts = [
         id: 4,
         name: "Hydrating Cleanser with Ceramides",
         intensity: "Gentle",
-        intensityColor: "text-[#016630] bg-[#DCFCE7]",
+        intensityColor: "text-success bg-success-bg",
         description: "Gentle, non-foaming cleanser that maintains skin barrier",
         ingredients: ["Ceramides", "Hyaluronic Acid"],
         usage: "Morning & Evening",
@@ -74,7 +77,7 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Blurred backdrop */}
             <div
-                className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]"
+                className="fixed inset-0 bg-overlay backdrop-blur-[16px]"
                 onClick={onClose}
                 aria-hidden="true"
             />
@@ -91,14 +94,14 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
                     <button
                         onClick={onClose}
                         aria-label="Close replace modal"
-                        className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors"
+                        className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
                 <div className="flex flex-col gap-3">
-                    <div className="bg-[#F6F0EE] rounded-md flex items-center gap-2 p-3">
+                    <div className="bg-surface rounded-md flex items-center gap-2 p-3">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clipPath="url(#clip0_77_8813)">
                                 <path d="M10.0003 18.3346C14.6027 18.3346 18.3337 14.6037 18.3337 10.0013C18.3337 5.39893 14.6027 1.66797 10.0003 1.66797C5.39795 1.66797 1.66699 5.39893 1.66699 10.0013C1.66699 14.6037 5.39795 18.3346 10.0003 18.3346Z" stroke="#CF604A" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
@@ -116,7 +119,7 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
 
                     <div className="flex flex-col gap-3 overflow-x-scroll">
                         {alternativeProducts.map((product) => (
-                            <div key={product.id} className="flex gap-4 p-5 border border-[#EDEBE3] rounded-xl hover:border-[#17B26A] hover:bg-[#F6FEF9] transition-all cursor-pointer group">
+                            <div key={product.id} className="flex gap-4 p-5 border border-sec rounded-xl hover:border-success-accent hover:bg-success-hover-bg transition-all cursor-pointer group">
                                 <div className="w-[150px] text-base font-normal">
                                     {product.name}
                                 </div>
@@ -128,7 +131,7 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     {product.ingredients.map((ingredient, index) => (
-                                        <div key={index} className="w-max py-[7px] px-3 rounded-full bg-[#EDEBE3] font-normal text-xs">
+                                        <div key={index} className="w-max py-[7px] px-3 rounded-full bg-sec font-normal text-xs">
                                             {ingredient}
                                         </div>
                                     ))}
@@ -149,13 +152,13 @@ const ReplaceModal = ({ isOpen, onClose, selectedPlan }: ReplaceModalProps) => {
                     <div className="flex justify-end gap-2 bg-white">
                         <button
                             onClick={onClose}
-                            className="px-5 py-2.5 text-base font-normal text-[#F04438] bg-[#FEE4E2] rounded-full transition-colors hover:bg-[#FECDCA]"
+                            className="px-5 py-2.5 text-base font-normal text-error-accent bg-error-pale rounded-full transition-colors hover:bg-error-pale-hover"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={onClose}
-                            className="px-5 py-2.5 text-base font-normal text-white bg-[#17B26A] rounded-full transition-colors hover:bg-[#129955]"
+                            className="px-5 py-2.5 text-base font-normal text-white bg-success-accent rounded-full transition-colors hover:bg-success-accent-hover"
                         >
                             Confirm Replacement
                         </button>
@@ -174,33 +177,38 @@ interface RejectModalProps {
 
 // Reject Modal Component
 const RejectModal = ({ isOpen, onClose, selectedPlan }: RejectModalProps) => {
-    const [rejectionReason, setRejectionReason] = useState('')
-    const [otherReason, setOtherReason] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const { dialogRef } = useAccessibleModal({ isOpen, onClose })
 
-    const resetForm = () => {
-        setRejectionReason('')
-        setOtherReason('')
-        setIsSubmitting(false)
-    }
+    const schema = z.object({
+        rejectionReason: z.string().trim().min(1, 'Rejection reason is required'),
+    })
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
+        defaultValues: { rejectionReason: '' },
+    })
 
     const handleClose = () => {
-        resetForm()
+        reset({ rejectionReason: '' })
+        setIsSubmitting(false)
         onClose()
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+    const onValid = (values: z.infer<typeof schema>) => {
         setIsSubmitting(true)
 
         // Simulate API call
         setTimeout(() => {
             console.log('Rejection reason:', {
                 plan: selectedPlan,
-                reason: rejectionReason,
-                otherReason: rejectionReason === 'other' ? otherReason : null
+                reason: values.rejectionReason,
             })
             handleClose()
         }, 500)
@@ -212,7 +220,7 @@ const RejectModal = ({ isOpen, onClose, selectedPlan }: RejectModalProps) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Blurred backdrop */}
             <div
-                className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]"
+                className="fixed inset-0 bg-overlay backdrop-blur-[16px]"
                 onClick={handleClose}
                 aria-hidden="true"
             />
@@ -229,39 +237,42 @@ const RejectModal = ({ isOpen, onClose, selectedPlan }: RejectModalProps) => {
                     <button
                         onClick={handleClose}
                         aria-label="Close reject modal"
-                        className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors"
+                        className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onValid)}>
                     <label className="mb-6 flex flex-col gap-2">
-                        <span className="text-xs font-medium text-[#0A0A0A]">
+                        <span className="text-xs font-medium text-ink">
                             Rejection Reason
                         </span>
                         <input
                             type="text"
-                            value={rejectionReason}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRejectionReason(e.target.value)}
                             placeholder={`e.g., Too strong for patient's sensitive skin, may cause irritation...`}
-                            className='text-sm font-normal border border-[#EDEBE3] h-[44px] px-3 focus:outline-none rounded bg-[#EDEBE3]'
+                            {...register('rejectionReason')}
+                            aria-invalid={!!errors.rejectionReason}
+                            className='text-sm font-normal border border-sec h-[44px] px-3 focus:outline-none rounded bg-sec'
                         />
+                        {errors.rejectionReason && (
+                            <span className="text-xs text-error-text">{errors.rejectionReason.message}</span>
+                        )}
                     </label>
 
                     <div className="flex justify-end gap-3">
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="px-5 py-2.5 text-sm font-medium text-white bg-[#20201E] rounded-full transition-colors"
+                            className="px-5 py-2.5 text-sm font-medium text-white bg-tet rounded-full transition-colors"
                             disabled={isSubmitting}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            disabled={!rejectionReason || isSubmitting}
-                            className="px-5 py-2.5 text-sm font-medium text-white bg-[#F04438] rounded-full transition-colors disabled:opacity-90 disabled:cursor-not-allowed flex items-center gap-2"
+                            disabled={isSubmitting}
+                            className="px-5 py-2.5 text-sm font-medium text-white bg-error-accent rounded-full transition-colors disabled:opacity-90 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                             {isSubmitting ? (
                                 <>
@@ -352,7 +363,7 @@ const RecommendedTreatmentPlan = () => {
                                 </button>
                                 <button
                                     onClick={() => handleRejectClick(plan)}
-                                    className="text-[#E7000B] flex items-center gap-1 text-sm py-2 px-4 bg-transparent border border-sec rounded-full hover:bg-red-50 transition-colors"
+                                    className="text-danger-accent flex items-center gap-1 text-sm py-2 px-4 bg-transparent border border-sec rounded-full hover:bg-red-50 transition-colors"
                                 >
                                     <CircleX size={16} />
                                     <span>Reject</span>

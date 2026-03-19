@@ -12,14 +12,229 @@
     "emailPlaceholder": "أدخل بريدك الإلكتروني",
     "signIn": "تسجيل الدخول",
     "heroTitle": "أنت ترى السطح ونحن نفهم بشرتك",
-    "heroBody": "نكتشف ما يحدث حقًا مع بشرتك وكيفية علاجها. من هنا تبدأ رعايتك."
+    "heroBody": "نكتشف ما يحدث حقًا مع بشرتك وكيفية علاجها. من هنا تبدأ رعايتك.",
+    "heroTitle1": "أنت ترى السطح ونحن نفهم بشرتك",
+    "heroBody1": "نكتشف ما يحدث حقًا مع بشرتك وكيفية علاجها. من هنا تبدأ رعايتك.",
+    "heroTitle2": "تحليل متقدم لمشاكل البشرة",
+    "heroBody2": "تحلل تقنيتنا المدعومة بالذكاء الاصطناعي مشاكل بشرتك بدقة وتوصي بعلاجات مخصصة.",
+    "heroTitle3": "أطباء جلدية خبراء",
+    "heroBody3": "تواصل مع أطباء جلدية معتمدين يفهمون احتياجات بشرتك الفريدة.",
+    "heroTitle4": "خطط علاج مخصصة",
+    "heroBody4": "احصل على خطط علاج مصممة خصيصًا لمشاكل بشرتك وأهدافك.",
+    "heroTitle5": "تابع تقدمك",
+    "heroBody5": "راقب تحسن بشرتك مع مرور الوقت باستخدام أدوات تتبع التقدم."
   },
   "admin": {
     "tabs": {
       "overview": "نظرة عامة",
       "doctors": "الأطباء",
       "patients": "المرضى",
-      "allCases": "كل الحالات"
+      "allCases": "كل الحالات",
+      "analytics": "التحليلات",
+      "productCatalog": "كتالوج المنتجات"
+    },
+    "doctors": {
+      "title": "إدارة الأطباء",
+      "summary": "{total} طبيبًا · {activeCount} نشط · {inactiveCount} غير نشط",
+      "offline": {
+        "readOnlyMode": "وضع عدم الاتصال: تكون بيانات الأطباء المخزنة مؤقتًا للقراءة فقط حتى استعادة الاتصال.",
+        "offlineActionsMayFail": "أنت غير متصل. قد تفشل الإجراءات التي تتطلب اتصالاً.",
+        "cachedReconnectAddDoctors": "أنت غير متصل باستخدام البيانات المخزنة. أعد الاتصال لإضافة الأطباء.",
+        "cachedReconnectDeleteDoctors": "أنت غير متصل باستخدام البيانات المخزنة. أعد الاتصال لحذف الأطباء."
+      },
+      "modal": {
+        "title": "إضافة طبيب جديد",
+        "description": "أدخل تفاصيل الطبيب الجديد لإضافته إلى النظام.",
+        "closeAriaLabel": "إغلاق نافذة إضافة الطبيب",
+        "fields": {
+          "fullName": "الاسم الكامل",
+          "emailAddress": "عنوان البريد الإلكتروني",
+          "phoneNumber": "رقم الهاتف",
+          "specialty": "التخصص",
+          "licenseNumber": "رقم الترخيص",
+          "yearsOfExperience": "سنوات الخبرة"
+        },
+        "placeholders": {
+          "fullName": "د. الاسم الكامل",
+          "email": "doctor@example.com",
+          "phone": "+1 (555) 000-0000",
+          "specialty": "مثل: الأمراض الجلدية",
+          "license": "رقم الترخيص",
+          "experience": "مثل: 10"
+        },
+        "buttons": {
+          "cancel": "إلغاء",
+          "addDoctor": "إضافة طبيب",
+          "adding": "جارٍ الإضافة..."
+        },
+        "validation": {
+          "fullNameRequired": "الاسم الكامل مطلوب.",
+          "emailRequired": "عنوان البريد الإلكتروني مطلوب.",
+          "emailInvalid": "أدخل عنوان بريد إلكتروني صالحًا.",
+          "phoneRequired": "رقم الهاتف مطلوب.",
+          "specialtyRequired": "التخصص مطلوب.",
+          "licenseRequired": "رقم الترخيص مطلوب.",
+          "experienceNegative": "سنوات الخبرة لا يمكن أن تكون سالبة."
+        }
+      },
+      "filters": {
+        "allDoctors": "جميع الأطباء",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "filterFallback": "فلتر"
+      },
+      "table": {
+        "doctor": "الطبيب",
+        "specialty": "التخصص",
+        "cases": "الحالات",
+        "approved": "موافق عليه",
+        "pending": "قيد المراجعة",
+        "rejected": "مرفوض",
+        "lastActive": "آخر نشاط",
+        "status": "الحالة"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "actions": {
+        "viewDetails": "عرض التفاصيل",
+        "removeDoctor": "إزالة الطبيب"
+      },
+      "confirmations": {
+        "removeDoctor": "هل أنت متأكد أنك تريد إزالة هذا الطبيب؟ لا يمكن التراجع عن هذا الإجراء."
+      },
+      "empty": {
+        "noDoctorsFound": "لم يتم العثور على أطباء",
+        "tryAdjustSearchOrFilter": "جرّب تعديل البحث أو الفلتر."
+      },
+      "searchPlaceholder": "ابحث بالاسم أو رقم الهوية أو التخصص...",
+      "pagination": {
+        "showing": "عرض {start}–{end} من {total}"
+      }
+    },
+    "patients": {
+      "notFound": "لم يتم العثور على المريض",
+      "backToPatients": "العودة إلى المرضى",
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "approvalRateLabel": "معدل الموافقة",
+      "stats": {
+        "totalCases": "إجمالي الحالات",
+        "approved": "موافق",
+        "pending": "قيد المراجعة",
+        "rejected": "مرفوض"
+      },
+      "patientInformationTitle": "معلومات المريض",
+      "fields": {
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "address": "العنوان",
+        "dateOfBirth": "تاريخ الميلاد",
+        "bloodType": "فصيلة الدم",
+        "allergies": "الحساسية",
+        "lastVisit": "آخر زيارة"
+      },
+      "registeredLabel": "مسجل: {date}",
+      "caseHistory": {
+        "title": "سجل الحالات",
+        "subtitle": "جميع حالات العلاج لهذا المريض"
+      },
+      "table": {
+        "case": "الحالة",
+        "doctor": "الطبيب",
+        "condition": "السبب",
+        "aiConf": "ثقة الذكاء الاصطناعي",
+        "status": "الحالة",
+        "date": "التاريخ"
+      },
+      "caseStatus": {
+        "approved": "موافق",
+        "pending": "قيد المراجعة",
+        "rejected": "مرفوض"
+      }
+    },
+    "productCatalog": {
+      "title": "جميع المنتجات",
+      "counts": "{products} منتجًا · {categories} فئة",
+      "hero": {
+        "title": "لوحة الإدارة",
+        "subtitle": "نظرة شاملة كاملة على نشاط النظام والإدارة",
+        "metrics": {
+          "activeInCatalog": "النشاط في الكتالوج",
+          "productCategories": "فئات المنتجات",
+          "productsCount": "6 منتجات",
+          "uniqueIngredients": "المكونات الفريدة"
+        }
+      },
+      "searchPlaceholder": "ابحث بالاسم أو الفئة أو المكون...",
+      "filters": {
+        "allProducts": "جميع المنتجات",
+        "gentle": "لطيف",
+        "moderate": "متوسط",
+        "strong": "قوي",
+        "filterFallback": "فلتر"
+      },
+      "modal": {
+        "closeAriaLabel": "إغلاق نافذة المنتج",
+        "fillRequiredInfo": "املأ جميع المعلومات المطلوبة.",
+        "titles": {
+          "add": "إضافة منتج جديد",
+          "edit": "تعديل المنتج"
+        },
+        "fields": {
+          "productName": "اسم المنتج",
+          "category": "الفئة",
+          "strength": "القوة",
+          "description": "الوصف",
+          "usageInstructions": "تعليمات الاستخدام"
+        },
+        "placeholders": {
+          "productName": "أدخل اسم المنتج",
+          "select": "اختيار",
+          "strength": "اختر",
+          "usageInstructions": "مثال: صباحًا ومساءً"
+        },
+        "buttons": {
+          "cancel": "إلغاء",
+          "addProduct": "إضافة منتج",
+          "saveChanges": "حفظ التغييرات"
+        }
+      },
+      "table": {
+        "product": "المنتج",
+        "category": "الفئة",
+        "keyIngredients": "المكونات الرئيسية",
+        "strength": "القوة",
+        "skinTypes": "أنواع البشرة",
+        "usage": "الاستخدام"
+      },
+      "actions": {
+        "editProduct": "تعديل المنتج",
+        "deleteProduct": "حذف المنتج"
+      },
+      "confirmations": {
+        "deleteProduct": "هل أنت متأكد أنك تريد حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء."
+      },
+      "empty": {
+        "noProductsFound": "لم يتم العثور على منتجات",
+        "tryAdjustSearchOrFilter": "جرّب تعديل البحث أو الفلتر."
+      },
+      "pagination": {
+        "showing": "عرض {start}–{end} من {total}"
+      }
+    },
+    "analytics": {
+      "title": "نظرة عامة على التحليلات",
+      "subtitle": "أداء النظام ورؤى",
+      "metrics": {
+        "totalCasesThisMonth": "إجمالي الحالات (هذا الشهر)",
+        "approvalRate": "معدل الموافقة",
+        "avgReviewTime": "متوسط وقت المراجعة",
+        "rejectionRate": "معدل الرفض"
+      }
     }
   },
   "charts": {
@@ -32,6 +247,26 @@
       "rosacea": "الوردية",
       "other": "أخرى"
     }
+  },
+  "doctor": {
+    "nav": {
+      "overview": "نظرة عامة",
+      "pendingApprovals": "موافقات معلقة",
+      "approvedCases": "الحالات الموافق عليها",
+      "rejectedCases": "الحالات المرفوضة"
+    }
+  },
+  "errors": {
+    "noAccessTitle": "لا يوجد وصول",
+    "noAccessBody": "ليس لديك صلاحية لعرض هذه الصفحة. انتقل إلى الحساب الصحيح أو ارجع إلى منطقة مسموح بها.",
+    "returnToLogin": "العودة إلى صفحة تسجيل الدخول",
+    "somethingWentWrong": "حدث خطأ ما",
+    "routeErrorBody": "تعذر علينا إكمال هذا الإجراء. يرجى المحاولة مرة أخرى. إذا استمر ذلك، قم بتحديث الصفحة وتواصل مع الدعم باستخدام هذا المرجع: {digest}.",
+    "tryAgain": "حاول مرة أخرى",
+    "goHome": "العودة إلى الصفحة الرئيسية",
+    "applicationErrorTitle": "خطأ في التطبيق",
+    "applicationErrorBody": "واجه التطبيق خطأ غير متوقع. حاول مرة أخرى. إذا استمرت المشكلة، تواصل مع الدعم باستخدام المرجع: {digest}.",
+    "reloadAppState": "إعادة تحميل حالة التطبيق"
   }
 }
 

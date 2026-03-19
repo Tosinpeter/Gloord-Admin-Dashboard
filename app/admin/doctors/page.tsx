@@ -1,7 +1,8 @@
 'use client'
 import AdminHeader from '@/components/admin/AdminHeader'
 import { ChevronLeft, ChevronRight, EllipsisVertical, ListFilter, Plus, Search, X } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslations } from "next-intl"
 import {
     Table,
     TableBody,
@@ -12,9 +13,21 @@ import {
 } from "@/components/ui/table"
 import Image from 'next/image'
 import Link from 'next/link'
-import { readCachedJson, writeCachedJson } from '@/lib/cache'
 import AccessGate from '@/components/AccessGate'
 import { useAccessibleModal } from '@/lib/useAccessibleModal'
+import { trpc } from '@/lib/trpc'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useAdminStore } from '@/lib/admin-store'
+import type { ColumnDef } from '@tanstack/react-table'
+import {
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
 
 interface Doctor {
     id: string;
@@ -44,117 +57,113 @@ interface AddDoctorModalProps {
     onAdd: (doctorData: Partial<Doctor>) => void;
 }
 
-type AddDoctorErrors = {
-    name?: string
-    email?: string
-    phone?: string
-    specialty?: string
-    license?: string
-    experience?: string
-}
-
 const AddDoctorModal = ({ isOpen, onClose, onAdd }: AddDoctorModalProps) => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        specialty: '',
-        license: '',
-        experience: '',
-    })
-    const [errors, setErrors] = useState<AddDoctorErrors>({})
-    const [isSubmitting, setIsSubmitting] = useState(false)
-
+    const t = useTranslations("admin.doctors")
     const { dialogRef } = useAccessibleModal({ isOpen, onClose })
+    const schema = useMemo(
+        () =>
+            z.object({
+                name: z.string().trim().min(1, t("modal.validation.fullNameRequired")),
+                email: z.string().trim().min(1, t("modal.validation.emailRequired")).email(t("modal.validation.emailInvalid")),
+                phone: z.string().trim().min(1, t("modal.validation.phoneRequired")),
+                specialty: z.string().trim().min(1, t("modal.validation.specialtyRequired")),
+                license: z.string().trim().min(1, t("modal.validation.licenseRequired")),
+                experience: z
+                    .string()
+                    .optional()
+                    .refine(
+                        (val) => {
+                            if (!val) return true
+                            return Number(val) >= 0
+                        },
+                        { message: t("modal.validation.experienceNegative") },
+                    ),
+            }),
+        [t],
+    )
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
-        setErrors(prev => ({ ...prev, [name]: undefined }))
-    }
+    type AddDoctorFormValues = z.infer<typeof schema>
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (isSubmitting) return
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<AddDoctorFormValues>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            name: "",
+            email: "",
+            phone: "",
+            specialty: "",
+            license: "",
+            experience: "",
+        },
+    })
 
-        const nextErrors: AddDoctorErrors = {}
-        if (!formData.name.trim()) nextErrors.name = 'Full name is required.'
-        if (!formData.email.trim()) nextErrors.email = 'Email address is required.'
-        else if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) nextErrors.email = 'Enter a valid email address.'
-        if (!formData.phone.trim()) nextErrors.phone = 'Phone number is required.'
-        if (!formData.specialty.trim()) nextErrors.specialty = 'Specialty is required.'
-        if (!formData.license.trim()) nextErrors.license = 'License number is required.'
-        if (formData.experience && Number(formData.experience) < 0) {
-            nextErrors.experience = 'Years of experience cannot be negative.'
-        }
-
-        setErrors(nextErrors)
-        if (Object.keys(nextErrors).length > 0) {
-            console.error('Add doctor form validation failed', nextErrors)
-            return
-        }
-
-        setIsSubmitting(true)
-        onAdd({ ...formData, experience: Number(formData.experience) || 0 } as unknown as Partial<Doctor>)
-        setFormData({ name: '', email: '', phone: '', specialty: '', license: '', experience: '' })
-        setIsSubmitting(false)
+    const onFormSubmit = (values: AddDoctorFormValues) => {
+        onAdd({
+            ...values,
+            experience: Number(values.experience) || 0,
+        } as unknown as Partial<Doctor>)
+        reset()
     }
 
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]" onClick={onClose} aria-hidden="true" />
-            <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Add new doctor" tabIndex={-1} className="relative bg-white rounded-2xl shadow-xl w-[95%] max-w-[407px] max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-overlay backdrop-blur-[16px]" onClick={onClose} aria-hidden="true" />
+            <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={t("modal.title")} tabIndex={-1} className="relative bg-white rounded-2xl shadow-xl w-[95%] max-w-[407px] max-h-[90vh] overflow-y-auto">
                 <div className="flex flex-col p-4 gap-1">
                     <div className="bg-white flex justify-between items-center">
-                        <h3 className="text-base font-bold">Add New Doctor</h3>
+                        <h3 className="text-base font-bold">{t("modal.title")}</h3>
                         <button
                             onClick={onClose}
-                            aria-label="Close add doctor modal"
-                            className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors hover:bg-[#E0DED6]"
+                            aria-label={t("modal.closeAriaLabel")}
+                            className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors hover:bg-sec-hover"
                         >
                             <X size={18} />
                         </button>
                     </div>
-                    <p className="text-sm font-normal text-[#717182]">Enter the details of the new doctor to add them to the system.</p>
+                    <p className="text-sm font-normal text-muted-text">{t("modal.description")}</p>
                 </div>
-                <form onSubmit={handleSubmit} className="px-4 pb-4">
+                <form onSubmit={handleSubmit(onFormSubmit)} className="px-4 pb-4">
                     <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="name" className="text-sm font-medium">Full Name</label>
-                            <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required placeholder="Dr. Full Name" className="w-full h-10 bg-[#EDEBE3] px-4 rounded-lg border-none focus:outline-none" />
-                            {errors.name && <p className="text-xs text-[#B91C1C]">{errors.name}</p>}
+                            <label htmlFor="name" className="text-sm font-medium">{t("modal.fields.fullName")}</label>
+                            <input type="text" id="name" {...register("name")} required placeholder={t("modal.placeholders.fullName")} className="w-full h-10 bg-sec px-4 rounded-lg border-none focus:outline-none" />
+                            {errors.name?.message && <p className="text-xs text-error-text">{errors.name.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="email" className="text-sm font-medium">Email Address</label>
-                            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required placeholder="doctor@example.com" className="w-full h-10 bg-[#EDEBE3] px-4 rounded-lg border-none focus:outline-none" />
-                            {errors.email && <p className="text-xs text-[#B91C1C]">{errors.email}</p>}
+                            <label htmlFor="email" className="text-sm font-medium">{t("modal.fields.emailAddress")}</label>
+                            <input type="email" id="email" {...register("email")} required placeholder={t("modal.placeholders.email")} className="w-full h-10 bg-sec px-4 rounded-lg border-none focus:outline-none" />
+                            {errors.email?.message && <p className="text-xs text-error-text">{errors.email.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="phone" className="text-sm font-medium">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} required placeholder="+1 (555) 000-0000" className="w-full h-10 bg-[#EDEBE3] px-4 rounded-lg border-none focus:outline-none" />
-                            {errors.phone && <p className="text-xs text-[#B91C1C]">{errors.phone}</p>}
+                            <label htmlFor="phone" className="text-sm font-medium">{t("modal.fields.phoneNumber")}</label>
+                            <input type="tel" id="phone" {...register("phone")} required placeholder={t("modal.placeholders.phone")} className="w-full h-10 bg-sec px-4 rounded-lg border-none focus:outline-none" />
+                            {errors.phone?.message && <p className="text-xs text-error-text">{errors.phone.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="specialty" className="text-sm font-medium">Specialty</label>
-                            <input type="text" id="specialty" name="specialty" value={formData.specialty} onChange={handleChange} required placeholder="e.g. Dermatology" className="w-full h-10 bg-[#EDEBE3] px-4 rounded-lg border-none focus:outline-none" />
-                            {errors.specialty && <p className="text-xs text-[#B91C1C]">{errors.specialty}</p>}
+                            <label htmlFor="specialty" className="text-sm font-medium">{t("modal.fields.specialty")}</label>
+                            <input type="text" id="specialty" {...register("specialty")} required placeholder={t("modal.placeholders.specialty")} className="w-full h-10 bg-sec px-4 rounded-lg border-none focus:outline-none" />
+                            {errors.specialty?.message && <p className="text-xs text-error-text">{errors.specialty.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="license" className="text-sm font-medium">License Number</label>
-                            <input type="text" id="license" name="license" value={formData.license} onChange={handleChange} required placeholder="License number" className="w-full h-10 bg-[#EDEBE3] px-4 rounded-lg border-none focus:outline-none" />
-                            {errors.license && <p className="text-xs text-[#B91C1C]">{errors.license}</p>}
+                            <label htmlFor="license" className="text-sm font-medium">{t("modal.fields.licenseNumber")}</label>
+                            <input type="text" id="license" {...register("license")} required placeholder={t("modal.placeholders.license")} className="w-full h-10 bg-sec px-4 rounded-lg border-none focus:outline-none" />
+                            {errors.license?.message && <p className="text-xs text-error-text">{errors.license.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="experience" className="text-sm font-medium">Years of Experience</label>
-                            <input type="number" id="experience" name="experience" value={formData.experience} onChange={handleChange} placeholder="e.g. 10" className="w-full h-10 bg-[#EDEBE3] px-4 rounded-lg border-none focus:outline-none" />
-                            {errors.experience && <p className="text-xs text-[#B91C1C]">{errors.experience}</p>}
+                            <label htmlFor="experience" className="text-sm font-medium">{t("modal.fields.yearsOfExperience")}</label>
+                            <input type="number" id="experience" {...register("experience")} placeholder={t("modal.placeholders.experience")} className="w-full h-10 bg-sec px-4 rounded-lg border-none focus:outline-none" />
+                            {errors.experience?.message && <p className="text-xs text-error-text">{errors.experience.message}</p>}
                         </div>
                     </div>
                     <div className="flex justify-end gap-3 mt-4">
-                        <button type="button" onClick={onClose} className="px-4 py-2.5 text-base font-normal text-white bg-[#000] rounded-full transition-colors hover:bg-[#000]/80">Cancel</button>
-                        <button disabled={isSubmitting} type="submit" className="px-4 py-2.5 text-base font-normal text-white bg-pry rounded-full transition-colors hover:bg-pry/80 disabled:opacity-50 disabled:cursor-not-allowed">{isSubmitting ? 'Adding...' : 'Add Doctor'}</button>
+                        <button type="button" onClick={onClose} className="px-4 py-2.5 text-base font-normal text-white bg-ink rounded-full transition-colors hover:bg-ink/80">{t("modal.buttons.cancel")}</button>
+                        <button disabled={isSubmitting} type="submit" className="px-4 py-2.5 text-base font-normal text-white bg-pry rounded-full transition-colors hover:bg-pry/80 disabled:opacity-50 disabled:cursor-not-allowed">{isSubmitting ? t("modal.buttons.adding") : t("modal.buttons.addDoctor")}</button>
                     </div>
                 </form>
             </div>
@@ -163,7 +172,6 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }: AddDoctorModalProps) => {
 }
 
 const ROWS_PER_PAGE = 8
-const DOCTORS_CACHE_KEY = 'admin_doctors_cache_v1'
 
 const doctorsData: Doctor[] = [
     { id: 'D003', name: 'Sarah Johnson', email: 'sarah.johnson@clinic.com', phone: '+1 (555) 201-3344', specialty: 'Dermatology', approved: 42, pending: 5, rejected: 3, totalCases: 50, lastActive: 'Jan 24, 2026', experience: 12, license: 'MD-29384', status: 'active', image: '/images/patientimage.png' },
@@ -184,12 +192,13 @@ const doctorsData: Doctor[] = [
 ]
 
 const Page = () => {
+    const t = useTranslations("admin.doctors")
     const [isFilterOpen, setIsFilterOpen] = useState(false)
-    const [selectedFilter, setSelectedFilter] = useState('all')
-    const [searchQuery, setSearchQuery] = useState('')
     const [isAddDoctorModalOpen, setIsAddDoctorModalOpen] = useState(false)
-    const [currentPage, setCurrentPage] = useState(1)
-    const [doctors, setDoctors] = useState<Doctor[]>(doctorsData)
+    const {
+        data: doctors = doctorsData,
+        refetch: refetchDoctors,
+    } = trpc.doctors.list.useQuery(undefined, { initialData: doctorsData })
     const [openMenuId, setOpenMenuId] = useState<string | null>(null)
     const [isOffline, setIsOffline] = useState(false)
     const [isReadOnly, setIsReadOnly] = useState(false)
@@ -198,98 +207,186 @@ const Page = () => {
     const filterDropdownRef = useRef<HTMLDivElement>(null)
     const menuRef = useRef<HTMLDivElement>(null)
 
+    const {
+        doctorsSearch,
+        doctorsStatus,
+        doctorsPagination,
+        doctorsSorting,
+        setDoctorsSearch,
+        setDoctorsStatus,
+        setDoctorsPagination,
+        setDoctorsSorting,
+    } = useAdminStore()
+
     const filters: Filter[] = [
-        { value: 'all', label: 'All Doctors' },
-        { value: 'active', label: 'Active' },
-        { value: 'inactive', label: 'Inactive' },
+        { value: 'all', label: t("filters.allDoctors") },
+        { value: 'active', label: t("filters.active") },
+        { value: 'inactive', label: t("filters.inactive") },
     ]
 
     const handleFilterSelect = (filter: string) => {
-        setSelectedFilter(filter)
+        setDoctorsStatus(filter as "all" | "active" | "inactive")
         setIsFilterOpen(false)
-        setCurrentPage(1)
+        setDoctorsPagination({ pageIndex: 0, pageSize: doctorsPagination.pageSize })
     }
+
+    const addDoctorMutation = trpc.doctors.add.useMutation({
+        onSuccess: async () => {
+            setActionError(null)
+            setIsAddDoctorModalOpen(false)
+            await refetchDoctors()
+        },
+        onError: (err) => {
+            console.error(err)
+            setActionError("Failed to add doctor.")
+        },
+    })
+
+    const removeDoctorMutation = trpc.doctors.remove.useMutation({
+        onSuccess: async () => {
+            setActionError(null)
+            setOpenMenuId(null)
+            await refetchDoctors()
+        },
+        onError: (err) => {
+            console.error(err)
+            setActionError("Failed to remove doctor.")
+        },
+    })
 
     const handleAddDoctor = (doctorData: Partial<Doctor>) => {
         if (isReadOnly) {
-            const message = 'You are offline with cached data. Reconnect to add doctors.'
+            const message = t("offline.cachedReconnectAddDoctors")
             setActionError(message)
             console.error(message)
             return
         }
-
-        const lastId = doctors[doctors.length - 1]?.id || 'D002'
-        const newId = `D${String(parseInt(lastId.substring(1)) + 1).padStart(3, '0')}`
-        const newDoctor: Doctor = {
-            id: newId,
-            name: (doctorData.name as string) || 'New Doctor',
-            email: (doctorData.email as string) || '',
-            phone: (doctorData.phone as string) || '',
-            specialty: (doctorData.specialty as string) || 'Dermatology',
-            approved: 0, pending: 0, rejected: 0, totalCases: 0,
-            lastActive: 'Just now',
-            experience: Number(doctorData.experience) || 0,
-            license: (doctorData.license as string) || '',
-            status: 'active',
-            image: '/images/patientimage.png',
-        }
-        setDoctors(prev => {
-            const updated = [...prev, newDoctor]
-            writeCachedJson(DOCTORS_CACHE_KEY, updated)
-            return updated
+        addDoctorMutation.mutate({
+            name: String(doctorData.name ?? ""),
+            email: String(doctorData.email ?? ""),
+            phone: String(doctorData.phone ?? ""),
+            specialty: String(doctorData.specialty ?? ""),
+            license: String(doctorData.license ?? ""),
+            experience: doctorData.experience ?? 0,
         })
-        setActionError(null)
-        setIsAddDoctorModalOpen(false)
     }
 
     const handleDeleteDoctor = (id: string) => {
         if (isReadOnly) {
-            const message = 'You are offline with cached data. Reconnect to delete doctors.'
+            const message = t("offline.cachedReconnectDeleteDoctors")
             setActionError(message)
             console.error(message)
             return
         }
-        const shouldDelete = window.confirm('Are you sure you want to remove this doctor? This action cannot be undone.')
+        const shouldDelete = window.confirm(t("confirmations.removeDoctor"))
         if (!shouldDelete) return
-
-        setDoctors(prev => {
-            const updated = prev.filter(d => d.id !== id)
-            writeCachedJson(DOCTORS_CACHE_KEY, updated)
-            return updated
-        })
-        setActionError(null)
-        setOpenMenuId(null)
+        removeDoctorMutation.mutate({ id })
     }
 
-    const filteredDoctors = doctors.filter(doctor => {
-        const matchesFilter = selectedFilter === 'all' || doctor.status === selectedFilter
-        const matchesSearch = doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doctor.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase())
-        return matchesFilter && matchesSearch
-    })
-
-    const totalPages = Math.ceil(filteredDoctors.length / ROWS_PER_PAGE)
-    const effectiveCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1
-    const paginatedDoctors = filteredDoctors.slice(
-        (effectiveCurrentPage - 1) * ROWS_PER_PAGE,
-        effectiveCurrentPage * ROWS_PER_PAGE,
+    const columns = useMemo<ColumnDef<Doctor>[]>(
+        () => [
+            {
+                accessorKey: "name",
+                header: t("table.doctor"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "specialty",
+                header: t("table.specialty"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "totalCases",
+                header: t("table.cases"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "approved",
+                header: t("table.approved"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "pending",
+                header: t("table.pending"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "rejected",
+                header: t("table.rejected"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "lastActive",
+                header: t("table.lastActive"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "status",
+                header: t("table.status"),
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const status = row.original.status
+                    return (
+                        <span
+                            className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-medium border ${
+                                status === "active"
+                                    ? "text-success bg-success-bg border-success-border"
+                                    : "text-error-text-alt bg-error-bg-alt border-error-soft-border"
+                            }`}
+                        >
+                            <span
+                                className={`size-1.5 rounded-full mr-1.5 ${
+                                    status === "active" ? "bg-success-accent" : "bg-error-accent"
+                                }`}
+                            />
+                            {status === "active" ? t("status.active") : t("status.inactive")}
+                        </span>
+                    )
+                },
+            },
+        ],
+        [t],
     )
 
-    useEffect(() => {
-        const cachedDoctors = readCachedJson<Doctor[]>(DOCTORS_CACHE_KEY)
-        if (cachedDoctors?.length) {
-            setTimeout(() => {
-                setDoctors(cachedDoctors)
-            }, 0)
-        } else {
-            writeCachedJson(DOCTORS_CACHE_KEY, doctorsData)
-        }
+    const table = useReactTable<Doctor>({
+        data: doctors as Doctor[],
+        columns,
+        getRowId: (row) => row.id,
+        state: {
+            sorting: doctorsSorting,
+            globalFilter: doctorsSearch,
+            pagination: doctorsPagination,
+        },
+        onSortingChange: setDoctorsSorting,
+        onGlobalFilterChange: setDoctorsSearch,
+        onPaginationChange: setDoctorsPagination,
+        globalFilterFn: (row, _columnId, filterValue) => {
+            const q = String(filterValue ?? "").toLowerCase().trim()
+            const statusOk = doctorsStatus === "all" || row.original.status === doctorsStatus
+            if (!q) return statusOk
+            if (!statusOk) return false
+            return (
+                row.original.name.toLowerCase().includes(q) ||
+                row.original.id.toLowerCase().includes(q) ||
+                row.original.specialty.toLowerCase().includes(q)
+            )
+        },
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    })
 
+    const filteredCount = table.getFilteredRowModel().rows.length
+    const totalPages = table.getPageCount()
+    const effectiveCurrentPage = table.getState().pagination.pageIndex + 1
+    const paginatedDoctors = table.getRowModel().rows.map((r) => r.original)
+
+    useEffect(() => {
         const syncConnectivity = () => {
             const offline = !window.navigator.onLine
             setIsOffline(offline)
-            setIsReadOnly(offline && !!readCachedJson<Doctor[]>(DOCTORS_CACHE_KEY)?.length)
+            setIsReadOnly(offline)
         }
 
         syncConnectivity()
@@ -300,10 +397,6 @@ const Page = () => {
             window.removeEventListener('offline', syncConnectivity)
         }
     }, [])
-
-    useEffect(() => {
-        writeCachedJson(DOCTORS_CACHE_KEY, doctors)
-    }, [doctors])
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -332,22 +425,26 @@ const Page = () => {
                 <div className="flex flex-col gap-6">
                     {/* Header */}
                     <div className="flex flex-col gap-1">
-                        <h2 className='text-2xl font-semibold text-gray-900'>Doctor Management</h2>
+                        <h2 className='text-2xl font-semibold text-gray-900'>{t("title")}</h2>
                         <p className='text-sm text-gray-500'>
-                            {doctors.length} doctors &middot; {activeCount} active &middot; {inactiveCount} inactive
+                            {t("summary", {
+                                total: doctors.length,
+                                activeCount,
+                                inactiveCount,
+                            })}
                         </p>
                         {isReadOnly && (
-                            <p className='text-sm text-[#9A3412]'>
-                                Offline mode: cached doctor data is read-only until connection is restored.
+                            <p className='text-sm text-warning-text-offline'>
+                                {t("offline.readOnlyMode")}
                             </p>
                         )}
                         {isOffline && !isReadOnly && (
-                            <p className='text-sm text-[#9A3412]'>
-                                You are offline. Actions that require network may fail.
+                            <p className='text-sm text-warning-text-offline'>
+                                {t("offline.offlineActionsMayFail")}
                             </p>
                         )}
                         {actionError && (
-                            <p role="alert" className='text-sm text-[#B91C1C]'>
+                            <p role="alert" className='text-sm text-error-text'>
                                 {actionError}
                             </p>
                         )}
@@ -356,25 +453,28 @@ const Page = () => {
                     {/* Toolbar */}
                     <div className="flex flex-col md:flex-row items-start gap-3 md:items-center justify-between">
                         <div className="flex flex-wrap gap-2 items-start md:items-center">
-                            <div className="flex items-center gap-2 border border-[#EDEBE3] bg-white w-[280px] h-[42px] rounded-full px-4">
+                            <div className="flex items-center gap-2 border border-sec bg-white w-[280px] h-[42px] rounded-full px-4">
                                 <Search size={18} className="text-gray-400" />
                                 <input
                                     type="search"
-                                    placeholder='Search by name, ID, or specialty...'
+                                    placeholder={t("searchPlaceholder")}
                                     className='border-none h-full w-full focus:outline-none bg-transparent text-sm'
-                                    value={searchQuery}
-                                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
+                                    value={doctorsSearch}
+                                    onChange={(e) => {
+                                        setDoctorsSearch(e.target.value)
+                                        setDoctorsPagination((prev) => ({ ...prev, pageIndex: 0 }))
+                                    }}
                                 />
                             </div>
                             <div className="relative">
                                 <button
                                     ref={filterButtonRef}
                                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                                    className="flex items-center gap-2 border border-[#EDEBE3] bg-white w-max h-[42px] rounded-full px-4 hover:bg-gray-50 transition-colors"
+                                    className="flex items-center gap-2 border border-sec bg-white w-max h-[42px] rounded-full px-4 hover:bg-gray-50 transition-colors"
                                 >
                                     <ListFilter size={18} />
                                     <span className='text-sm font-normal w-max'>
-                                        {filters.find(f => f.value === selectedFilter)?.label || 'Filter'}
+                                        {filters.find(f => f.value === doctorsStatus)?.label || t("filters.filterFallback")}
                                     </span>
                                 </button>
                                 <div ref={filterDropdownRef}>
@@ -385,7 +485,7 @@ const Page = () => {
                                                     <button
                                                         key={filter.value}
                                                         onClick={() => handleFilterSelect(filter.value)}
-                                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${selectedFilter === filter.value ? 'bg-[#EDEBE3] font-medium' : 'hover:bg-gray-50'}`}
+                                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${doctorsStatus === filter.value ? 'bg-sec font-medium' : 'hover:bg-gray-50'}`}
                                                     >
                                                         {filter.label}
                                                     </button>
@@ -402,32 +502,32 @@ const Page = () => {
                             className="flex bg-pry text-white h-[42px] rounded-full border border-pry items-center gap-2 px-5 text-sm font-medium hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <Plus size={16} />
-                            Add Doctor
+                            {t("modal.buttons.addDoctor")}
                         </button>
                     </div>
 
                     {/* Table */}
-                    <div className="border border-[#EDEBE3] rounded-2xl overflow-hidden">
+                    <div className="border border-sec rounded-2xl overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-[#FAFAF8] hover:bg-[#FAFAF8]">
-                                    <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">Doctor</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Specialty</TableHead>
-                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider">Cases</TableHead>
-                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Approved</TableHead>
-                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Pending</TableHead>
-                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">Rejected</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Active</TableHead>
-                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Status</TableHead>
+                                <TableRow className="bg-surface-variant hover:bg-surface-variant">
+                                    <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.doctor")}</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.specialty")}</TableHead>
+                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.cases")}</TableHead>
+                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">{t("table.approved")}</TableHead>
+                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">{t("table.pending")}</TableHead>
+                                    <TableHead className="text-center font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">{t("table.rejected")}</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden lg:table-cell">{t("table.lastActive")}</TableHead>
+                                    <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">{t("table.status")}</TableHead>
                                     <TableHead className="pr-6 w-10"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {paginatedDoctors.map((doctor) => (
-                                    <TableRow key={doctor.id} className="hover:bg-[#FAFAF8] group">
+                                    <TableRow key={doctor.id} className="hover:bg-surface-variant group">
                                         <TableCell className="pl-6">
                                             <Link href={`/admin/doctors/${doctor.id}`} className="flex items-center gap-3">
-                                                <div className="size-9 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                                                <div className="size-9 rounded-full overflow-hidden bg-sec shrink-0">
                                                     <Image src={doctor.image} width={36} height={36} alt={doctor.name} className='size-9 object-cover rounded-full' />
                                                 </div>
                                                 <div className="flex flex-col">
@@ -443,13 +543,13 @@ const Page = () => {
                                             <span className="text-sm font-medium text-gray-900">{doctor.totalCases}</span>
                                         </TableCell>
                                         <TableCell className="text-center hidden md:table-cell">
-                                            <span className="text-sm text-[#17B26A]">{doctor.approved}</span>
+                                            <span className="text-sm text-success-accent">{doctor.approved}</span>
                                         </TableCell>
                                         <TableCell className="text-center hidden md:table-cell">
-                                            <span className="text-sm text-[#F79009]">{doctor.pending}</span>
+                                            <span className="text-sm text-warning-dot">{doctor.pending}</span>
                                         </TableCell>
                                         <TableCell className="text-center hidden lg:table-cell">
-                                            <span className="text-sm text-[#F04438]">{doctor.rejected}</span>
+                                            <span className="text-sm text-error-accent">{doctor.rejected}</span>
                                         </TableCell>
                                         <TableCell className="hidden lg:table-cell">
                                             <span className="text-sm text-gray-500">{doctor.lastActive}</span>
@@ -457,11 +557,11 @@ const Page = () => {
                                         <TableCell>
                                             <span className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-medium border ${
                                                 doctor.status === 'active'
-                                                    ? 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]'
-                                                    : 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]'
+                                                    ? 'text-success bg-success-bg border-success-border'
+                                                    : 'text-error-text-alt bg-error-bg-alt border-error-soft-border'
                                             }`}>
-                                                <span className={`size-1.5 rounded-full mr-1.5 ${doctor.status === 'active' ? 'bg-[#17B26A]' : 'bg-[#F04438]'}`} />
-                                                {doctor.status === 'active' ? 'Active' : 'Inactive'}
+                                                <span className={`size-1.5 rounded-full mr-1.5 ${doctor.status === 'active' ? 'bg-success-accent' : 'bg-error-accent'}`} />
+                                                    {doctor.status === 'active' ? t("status.active") : t("status.inactive")}
                                             </span>
                                         </TableCell>
                                         <TableCell className="pr-6">
@@ -469,7 +569,7 @@ const Page = () => {
                                                 <button
                                                     type="button"
                                                     onClick={(e) => { e.preventDefault(); setOpenMenuId(openMenuId === doctor.id ? null : doctor.id) }}
-                                                    className="size-8 flex items-center justify-center rounded-lg hover:bg-[#EDEBE3] transition-colors"
+                                                    className="size-8 flex items-center justify-center rounded-lg hover:bg-sec transition-colors"
                                                 >
                                                     <EllipsisVertical size={16} className='text-gray-400' />
                                                 </button>
@@ -480,7 +580,7 @@ const Page = () => {
                                                                 href={`/admin/doctors/${doctor.id}`}
                                                                 className="block w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 transition-colors"
                                                             >
-                                                                View Details
+                                                                {t("actions.viewDetails")}
                                                             </Link>
                                                             <button
                                                                 disabled={isReadOnly}
@@ -488,7 +588,7 @@ const Page = () => {
                                                                 onClick={() => handleDeleteDoctor(doctor.id)}
                                                                 className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-600 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                                             >
-                                                                Remove Doctor
+                                                                {t("actions.removeDoctor")}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -500,25 +600,29 @@ const Page = () => {
                             </TableBody>
                         </Table>
 
-                        {filteredDoctors.length === 0 && (
+                        {filteredCount === 0 && (
                             <div className="text-center py-12 text-gray-400">
-                                <p className="text-base font-medium">No doctors found</p>
-                                <p className="text-sm mt-1">Try adjusting your search or filter.</p>
+                                <p className="text-base font-medium">{t("empty.noDoctorsFound")}</p>
+                                <p className="text-sm mt-1">{t("empty.tryAdjustSearchOrFilter")}</p>
                             </div>
                         )}
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between px-6 py-4 border-t border-[#EDEBE3]">
+                            <div className="flex items-center justify-between px-6 py-4 border-t border-sec">
                                 <p className="text-sm text-gray-500">
-                                    Showing {(effectiveCurrentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(effectiveCurrentPage * ROWS_PER_PAGE, filteredDoctors.length)} of {filteredDoctors.length}
+                                    {t("pagination.showing", {
+                                        start: (effectiveCurrentPage - 1) * ROWS_PER_PAGE + 1,
+                                        end: Math.min(effectiveCurrentPage * ROWS_PER_PAGE, filteredCount),
+                                        total: filteredCount,
+                                    })}
                                 </p>
                                 <div className="flex items-center gap-1">
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(Math.max(1, effectiveCurrentPage - 1))}
+                                        onClick={() => table.previousPage()}
                                         disabled={effectiveCurrentPage === 1}
-                                        className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                        className="size-8 flex items-center justify-center rounded-lg border border-sec hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronLeft size={16} />
                                     </button>
@@ -526,7 +630,7 @@ const Page = () => {
                                         <button
                                             key={page}
                                             type="button"
-                                            onClick={() => setCurrentPage(page)}
+                                            onClick={() => table.setPageIndex(page - 1)}
                                             className={`size-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                                                 page === effectiveCurrentPage
                                                     ? 'bg-pry text-white'
@@ -538,9 +642,9 @@ const Page = () => {
                                     ))}
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(Math.min(totalPages, effectiveCurrentPage + 1))}
+                                        onClick={() => table.nextPage()}
                                         disabled={effectiveCurrentPage === totalPages}
-                                        className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                        className="size-8 flex items-center justify-center rounded-lg border border-sec hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronRight size={16} />
                                     </button>

@@ -5,6 +5,9 @@ import Image from 'next/image'
 import profileimage from '@/public/images/profileimage.png'
 import React, { useRef, useState } from 'react'
 import AdminHeader from '@/components/admin/AdminHeader'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/gif']
@@ -12,11 +15,52 @@ const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/gif']
 const SettingsPage = () => {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
     const [fileError, setFileError] = useState<string | null>(null)
-    const [profileErrors, setProfileErrors] = useState<Record<string, string>>({})
-    const [securityErrors, setSecurityErrors] = useState<Record<string, string>>({})
     const [isSavingProfile, setIsSavingProfile] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const profileSchema = z.object({
+        fullName: z.string().trim().min(1, 'Full name is required.'),
+        email: z.string().trim().email('Enter a valid email address.'),
+        phone: z.string().trim().min(1, 'Phone number is required.'),
+        specialty: z.string().trim().min(1, 'Specialty is required.'),
+        bio: z.string().optional(),
+    })
+
+    const securitySchema = z
+        .object({
+            currentPassword: z.string().trim().min(1, 'Current password is required.'),
+            newPassword: z.string().trim().min(1, 'New password is required.'),
+        })
+        .refine((data) => data.newPassword.length >= 8, {
+            message: 'New password must be at least 8 characters.',
+            path: ['newPassword'],
+        })
+        .refine((data) => data.newPassword !== data.currentPassword, {
+            message: 'New password must be different from current password.',
+            path: ['newPassword'],
+        })
+
+    const profileForm = useForm<z.infer<typeof profileSchema>>({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            fullName: 'Dr. Sarah Johnson',
+            email: 'sarah.johnson@example.com',
+            phone: '+1 (555) 123-4567',
+            specialty: 'Dermatology',
+            bio: 'Board-certified dermatologist with 10+ years of experience in medical and cosmetic dermatology.',
+        },
+        mode: 'onSubmit',
+    })
+
+    const securityForm = useForm<z.infer<typeof securitySchema>>({
+        resolver: zodResolver(securitySchema),
+        defaultValues: {
+            currentPassword: '',
+            newPassword: '',
+        },
+        mode: 'onSubmit',
+    })
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -46,54 +90,18 @@ const SettingsPage = () => {
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
-    const handleProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+    const handleProfileSubmit = profileForm.handleSubmit(() => {
         if (isSavingProfile) return
-        const form = new FormData(e.currentTarget)
-        const fullName = String(form.get('fullName') ?? '').trim()
-        const email = String(form.get('email') ?? '').trim()
-        const phone = String(form.get('phone') ?? '').trim()
-        const specialty = String(form.get('specialty') ?? '').trim()
-        const errors: Record<string, string> = {}
-
-        if (!fullName) errors.fullName = 'Full name is required.'
-        if (!email) errors.email = 'Email is required.'
-        else if (!/^\S+@\S+\.\S+$/.test(email)) errors.email = 'Enter a valid email address.'
-        if (!phone) errors.phone = 'Phone number is required.'
-        if (!specialty) errors.specialty = 'Specialty is required.'
-
-        setProfileErrors(errors)
-        if (Object.keys(errors).length > 0) {
-            console.error('Profile form validation failed', errors)
-            return
-        }
-
         setIsSavingProfile(true)
         setTimeout(() => setIsSavingProfile(false), 500)
-    }
+    })
 
-    const handleSecuritySubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+    const handleSecuritySubmit = securityForm.handleSubmit((values) => {
         if (isChangingPassword) return
-        const form = new FormData(e.currentTarget)
-        const currentPassword = String(form.get('currentPassword') ?? '').trim()
-        const newPassword = String(form.get('newPassword') ?? '').trim()
-        const errors: Record<string, string> = {}
-
-        if (!currentPassword) errors.currentPassword = 'Current password is required.'
-        if (!newPassword) errors.newPassword = 'New password is required.'
-        else if (newPassword.length < 8) errors.newPassword = 'New password must be at least 8 characters.'
-        else if (newPassword === currentPassword) errors.newPassword = 'New password must be different from current password.'
-
-        setSecurityErrors(errors)
-        if (Object.keys(errors).length > 0) {
-            console.error('Security form validation failed', errors)
-            return
-        }
-
+        void values
         setIsChangingPassword(true)
         setTimeout(() => setIsChangingPassword(false), 500)
-    }
+    })
 
     return (
         <div>
@@ -107,7 +115,7 @@ const SettingsPage = () => {
                         </p>
                     </div>
                     <div className="max-w-[1062px] w-full mx-auto flex flex-col gap-8">
-                        <div className="bg-[#EDEBE3] border border-[#EDEBE3] rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
+                        <div className="bg-sec border border-sec rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
                             <div className="flex gap-4 md:gap-6 items-center">
                                 <div className="size-20 bg-white rounded-full overflow-hidden">
                                     <Image
@@ -148,35 +156,71 @@ const SettingsPage = () => {
                                         )}
                                     </div>
                                     <p className='text-xs font-normal'>JPG, PNG or GIF. Max size 2MB.</p>
-                                    {fileError && <p className='text-xs text-[#B91C1C]'>{fileError}</p>}
+                                    {fileError && <p className='text-xs text-error-text'>{fileError}</p>}
                                 </div>
                             </div>
                             <form onSubmit={handleProfileSubmit} className='flex flex-col gap-3 md:gap-5'>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
                                     <label htmlFor="fullName" className="flex flex-col gap-2 md:gap-3">
                                         <span className="">Full Name</span>
-                                        <input required type="text" name="fullName" id="fullName" defaultValue='Dr. Sarah Johnson' className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4' />
-                                        {profileErrors.fullName && <span className='text-xs text-[#B91C1C]'>{profileErrors.fullName}</span>}
+                                        <input
+                                            type="text"
+                                            id="fullName"
+                                            {...profileForm.register('fullName')}
+                                            aria-invalid={!!profileForm.formState.errors.fullName}
+                                            className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4'
+                                        />
+                                        {profileForm.formState.errors.fullName && (
+                                            <span className='text-xs text-error-text'>{profileForm.formState.errors.fullName.message}</span>
+                                        )}
                                     </label>
                                     <label htmlFor="email" className="flex flex-col gap-2 md:gap-3">
                                         <span className="">Email</span>
-                                        <input required type="email" name="email" id="email" defaultValue='sarah.johnson@example.com' className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4' />
-                                        {profileErrors.email && <span className='text-xs text-[#B91C1C]'>{profileErrors.email}</span>}
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            {...profileForm.register('email')}
+                                            aria-invalid={!!profileForm.formState.errors.email}
+                                            className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4'
+                                        />
+                                        {profileForm.formState.errors.email && (
+                                            <span className='text-xs text-error-text'>{profileForm.formState.errors.email.message}</span>
+                                        )}
                                     </label>
                                     <label htmlFor="phone" className="flex flex-col gap-2 md:gap-3">
                                         <span className="">Phone number</span>
-                                        <input required type="text" name="phone" id="phone" defaultValue='+1 (555) 123-4567' className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4' />
-                                        {profileErrors.phone && <span className='text-xs text-[#B91C1C]'>{profileErrors.phone}</span>}
+                                        <input
+                                            type="text"
+                                            id="phone"
+                                            {...profileForm.register('phone')}
+                                            aria-invalid={!!profileForm.formState.errors.phone}
+                                            className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4'
+                                        />
+                                        {profileForm.formState.errors.phone && (
+                                            <span className='text-xs text-error-text'>{profileForm.formState.errors.phone.message}</span>
+                                        )}
                                     </label>
                                     <label htmlFor="specialty" className="flex flex-col gap-2 md:gap-3">
                                         <span className="">Specialty</span>
-                                        <input required type="text" name="specialty" id="specialty" defaultValue='Dermatology' className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4' />
-                                        {profileErrors.specialty && <span className='text-xs text-[#B91C1C]'>{profileErrors.specialty}</span>}
+                                        <input
+                                            type="text"
+                                            id="specialty"
+                                            {...profileForm.register('specialty')}
+                                            aria-invalid={!!profileForm.formState.errors.specialty}
+                                            className='text-base bg-white border-none focus:outline-none rounded-lg h-[44px] w-full px-4'
+                                        />
+                                        {profileForm.formState.errors.specialty && (
+                                            <span className='text-xs text-error-text'>{profileForm.formState.errors.specialty.message}</span>
+                                        )}
                                     </label>
                                     <div className="col-span-1 md:col-span-2">
                                         <label htmlFor="bio" className="flex flex-col gap-2 md:gap-3">
                                             <span className="">Bio</span>
-                                            <textarea name="bio" id="bio" defaultValue='Board-certified dermatologist with 10+ years of experience in medical and cosmetic dermatology.' className='text-base bg-white border-none focus:outline-none rounded-lg h-[124px] w-full p-4 resize-none' />
+                                            <textarea
+                                                id="bio"
+                                                {...profileForm.register('bio')}
+                                                className='text-base bg-white border-none focus:outline-none rounded-lg h-[124px] w-full p-4 resize-none'
+                                            />
                                         </label>
                                     </div>
                                 </div>
@@ -193,7 +237,7 @@ const SettingsPage = () => {
                                     Manage how you receive notifications and alerts
                                 </p>
                             </div>
-                            <div className="bg-[#EDEBE3] border border-[#EDEBE3] rounded-xl p-4 md:p-8 flex flex-col gap-2 md:gap-5">
+                            <div className="bg-sec border border-sec rounded-xl p-4 md:p-8 flex flex-col gap-2 md:gap-5">
                                 <div className="flex flex-col gap-3">
                                     <div className="flex items-center justify-between gap-3 p-4 bg-white rounded-lg">
                                         <div className="flex flex-col gap-2">
@@ -237,28 +281,50 @@ const SettingsPage = () => {
                                     Manage your password and security settings
                                 </p>
                             </div>
-                            <div className="bg-[#EDEBE3] border border-[#EDEBE3] rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
-                                <form onSubmit={handleSecuritySubmit} className='flex flex-col gap-3 md:gap-5'>
+                            <div className="bg-sec border border-sec rounded-xl p-4 md:p-8 flex flex-col gap-3 md:gap-5">
+                            <form onSubmit={handleSecuritySubmit} className='flex flex-col gap-3 md:gap-5'>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <label htmlFor="currentPassword" className="flex flex-col gap-2 md:gap-3">
                                             <span className="font-normal text-base">Current Password</span>
                                             <div className="flex items-center gap-2 px-4 h-[44px] w-full bg-white rounded-md">
-                                                <input required type="password" name="currentPassword" id="currentPassword" placeholder="********" className="bg-transparent w-full h-full placeholder:text-[#344054] placeholder:font-normal border-none focus:outline-none" />
-                                                <div className="w-12 flex items-center justify-center bg-transparent text-[#344054]">
+                                            <input
+                                                type="password"
+                                                id="currentPassword"
+                                                placeholder="********"
+                                                {...securityForm.register('currentPassword')}
+                                                aria-invalid={!!securityForm.formState.errors.currentPassword}
+                                                className="bg-transparent w-full h-full placeholder-form-muted placeholder:font-normal border-none focus:outline-none"
+                                            />
+                                                <div className="w-12 flex items-center justify-center bg-transparent text-form-muted">
                                                     <EyeOff />
                                                 </div>
                                             </div>
-                                            {securityErrors.currentPassword && <span className='text-xs text-[#B91C1C]'>{securityErrors.currentPassword}</span>}
+                                        {securityForm.formState.errors.currentPassword && (
+                                            <span className='text-xs text-error-text'>
+                                                {securityForm.formState.errors.currentPassword.message}
+                                            </span>
+                                        )}
                                         </label>
                                         <label htmlFor="newPassword" className="flex flex-col gap-2 md:gap-3">
                                             <span className="font-normal text-base">New Password</span>
                                             <div className="flex items-center gap-2 px-4 h-[44px] w-full bg-white rounded-md">
-                                                <input required type="password" name="newPassword" id="newPassword" placeholder="********" className="bg-transparent w-full h-full placeholder:text-[#344054] placeholder:font-normal border-none focus:outline-none" />
-                                                <div className="w-12 flex items-center justify-center bg-transparent text-[#344054]">
+                                            <input
+                                                type="password"
+                                                id="newPassword"
+                                                placeholder="********"
+                                                {...securityForm.register('newPassword')}
+                                                aria-invalid={!!securityForm.formState.errors.newPassword}
+                                                className="bg-transparent w-full h-full placeholder-form-muted placeholder:font-normal border-none focus:outline-none"
+                                            />
+                                                <div className="w-12 flex items-center justify-center bg-transparent text-form-muted">
                                                     <EyeOff />
                                                 </div>
                                             </div>
-                                            {securityErrors.newPassword && <span className='text-xs text-[#B91C1C]'>{securityErrors.newPassword}</span>}
+                                        {securityForm.formState.errors.newPassword && (
+                                            <span className='text-xs text-error-text'>
+                                                {securityForm.formState.errors.newPassword.message}
+                                            </span>
+                                        )}
                                         </label>
                                     </div>
                                     <button disabled={isChangingPassword} className="bg-pry text-sm text-white rounded-full w-max ml-auto h-10 font-normal border-none focus:outline-none flex items-center justify-center gap-2 px-4 disabled:opacity-50 disabled:cursor-not-allowed">

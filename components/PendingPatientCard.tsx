@@ -28,7 +28,7 @@ const PendingPatientCard = ({
             id: "P-45123",
             date: "Jan 24, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Acne and hyperpigmentation on cheeks and forehead",
             image: patientimage
         },
@@ -36,7 +36,7 @@ const PendingPatientCard = ({
             id: "P-78901",
             date: "Jan 25, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Severe eczema on arms and neck with itching",
             image: patientimage
         },
@@ -44,7 +44,7 @@ const PendingPatientCard = ({
             id: "P-23456",
             date: "Jan 26, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Rosacea with redness and visible blood vessels",
             image: patientimage
         },
@@ -52,7 +52,7 @@ const PendingPatientCard = ({
             id: "P-67890",
             date: "Jan 27, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Psoriasis patches on elbows and knees",
             image: patientimage
         },
@@ -60,7 +60,7 @@ const PendingPatientCard = ({
             id: "P-34567",
             date: "Jan 28, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Melasma on forehead and upper lip",
             image: patientimage
         },
@@ -68,7 +68,7 @@ const PendingPatientCard = ({
             id: "P-89012",
             date: "Jan 29, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Contact dermatitis from new skincare product",
             image: patientimage
         },
@@ -76,7 +76,7 @@ const PendingPatientCard = ({
             id: "P-45678",
             date: "Jan 30, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Cystic acne on chin and jawline",
             image: patientimage
         },
@@ -84,7 +84,7 @@ const PendingPatientCard = ({
             id: "P-90123",
             date: "Feb 1, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Seborrheic dermatitis on scalp and face",
             image: patientimage
         },
@@ -92,7 +92,7 @@ const PendingPatientCard = ({
             id: "P-56789",
             date: "Feb 2, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Hives and allergic reaction to medication",
             image: patientimage
         }

@@ -9,7 +9,7 @@ const ActivityCard = () => {
             doctorName: "Dr. Sarah Johnson",
             date: "Jan 24, 2026",
             status: "Pending",
-            statusColor: "text-[#973C00] bg-[#FEF3C6] border-[#FEE685]",
+            statusColor: "text-warning bg-warning-bg border-warning-border",
             imageUrl: "/images/patientimage.png"
         },
         {
@@ -18,7 +18,7 @@ const ActivityCard = () => {
             doctorName: "Dr. Michael Chen",
             date: "Jan 24, 2026",
             status: "Approved",
-            statusColor: "text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]",
+            statusColor: "text-success bg-success-bg border-success-border",
             imageUrl: "/images/patientimage.png"
         },
         {
@@ -27,7 +27,7 @@ const ActivityCard = () => {
             doctorName: "Dr. Sarah Johnson",
             date: "Jan 24, 2026",
             status: "Pending",
-            statusColor: "text-[#973C00] bg-[#FEF3C6] border-[#FEE685]",
+            statusColor: "text-warning bg-warning-bg border-warning-border",
             imageUrl: "/images/patientimage.png"
         },
         {
@@ -36,7 +36,7 @@ const ActivityCard = () => {
             doctorName: "Dr. Emily Rodriguez",
             date: "Jan 24, 2026",
             status: "Approved",
-            statusColor: "text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]",
+            statusColor: "text-success bg-success-bg border-success-border",
             imageUrl: "/images/patientimage.png"
         },
         {
@@ -45,19 +45,19 @@ const ActivityCard = () => {
             doctorName: "Dr. Micheal Chen",
             date: "Jan 24, 2026",
             status: "Pending",
-            statusColor: "text-[#973C00] bg-[#FEF3C6] border-[#FEE685]",
+            statusColor: "text-warning bg-warning-bg border-warning-border",
             imageUrl: "/images/patientimage.png"
         },
     ];
 
     return (
         // <div className='max-w-[845px] w-full'>
-        <div className="flex flex-col gap-6 p-6 border border-[#EDEBE3] rounded-2xl bg-white">
+        <div className="flex flex-col gap-6 p-6 border border-sec rounded-2xl bg-white">
             <h3 className='text-2xl font-medium'>Recent Activity</h3>
 
             <div className="flex flex-col">
                 {activityData.map((activity) => (
-                    <div key={activity.id} className="border-t border-[#EDEBE3] py-4">
+                    <div key={activity.id} className="border-t border-sec py-4">
                         <div className="flex justify-between gap-3 items-center">
                             <div className="flex items-center gap-3">
                                 <div className="size-10 rounded-full">

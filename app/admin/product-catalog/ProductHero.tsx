@@ -1,9 +1,10 @@
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 const data = [
     {
         id: 1,
-        name: "Active in Catalog",
+        labelKey: "hero.metrics.activeInCatalog",
         number: '27',
         bg: '#F0FDFA',
         image: (
@@ -17,7 +18,7 @@ const data = [
     },
     {
         id: 2,
-        name: "Product categories",
+        labelKey: "hero.metrics.productCategories",
         number: '07',
         bg: '#F0FDFA',
         image: (
@@ -31,7 +32,7 @@ const data = [
     },
     {
         id: 3,
-        name: "6 Products",
+        labelKey: "hero.metrics.productsCount",
         number: 'Treatment',
         bg: '#F0FDFA',
         image: (
@@ -45,7 +46,7 @@ const data = [
     },
     {
         id: 4,
-        name: "Unique Ingredients",
+        labelKey: "hero.metrics.uniqueIngredients",
         number: '34',
         bg: '#F0FDFA',
         image: (
@@ -59,11 +60,12 @@ const data = [
     },
 ]
 const ProductHero = () => {
+    const t = useTranslations("admin.productCatalog")
     return (
-        <div className='bg-[#F6F0EE] rounded-xl p-5 flex flex-col gap-6'>
+        <div className='bg-surface rounded-xl p-5 flex flex-col gap-6'>
             <div className="flex flex-col gap-2">
-                <h3 className='text-[28px] font-medium'>Admin Dashboard</h3>
-                <p className='text-sm font-normal'>Complete overview of system activity and management</p>
+                <h3 className='text-[28px] font-medium'>{t("hero.title")}</h3>
+                <p className='text-sm font-normal'>{t("hero.subtitle")}</p>
             </div>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4'>
                 {data.map((datum) =>
@@ -73,7 +75,7 @@ const ProductHero = () => {
                         </div>
                         <div className="w-full flex-1 flex flex-col gap-3">
                             <h3 className='font-bold text-2xl md:text-[32px]'>{datum.number}</h3>
-                            <p className='font-normal text-sm md:text-base'>{datum.name}</p>
+                            <p className='font-normal text-sm md:text-base'>{t(datum.labelKey)}</p>
                         </div>
                     </div>
                 )}

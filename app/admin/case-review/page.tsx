@@ -5,6 +5,9 @@ import left from '@/public/images/left.png'
 import right from '@/public/images/right.png'
 import profileimage from '@/public/images/profileimage.png'
 import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import Questionnaire from '@/components/Questionnaire'
 import { ArrowLeft, CircleCheckBig, CircleX, X } from 'lucide-react'
 import RecommendedTreatmentPlan from '@/components/RecommendedTreatmentPlan'
@@ -28,7 +31,7 @@ const ApproveModal = ({ isOpen, onClose, onConfirm }: ApproveModalProps) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Blurred backdrop */}
             <div
-                className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]"
+                className="fixed inset-0 bg-overlay backdrop-blur-[16px]"
                 onClick={onClose}
                 aria-hidden="true"
             />
@@ -45,7 +48,7 @@ const ApproveModal = ({ isOpen, onClose, onConfirm }: ApproveModalProps) => {
                     <button
                         onClick={onClose}
                         aria-label="Close approve modal"
-                        className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors"
+                        className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors"
                     >
                         <X size={18} />
                     </button>
@@ -55,13 +58,13 @@ const ApproveModal = ({ isOpen, onClose, onConfirm }: ApproveModalProps) => {
                 <div className="flex justify-end gap-2 bg-white mt-6">
                     <button
                         onClick={onClose}
-                        className="px-5 py-2.5 text-base font-normal text-[#F04438] bg-[#FEE4E2] rounded-full transition-colors hover:bg-[#FECDCA]"
+                        className="px-5 py-2.5 text-base font-normal text-error-accent bg-error-pale rounded-full transition-colors hover:bg-error-pale-hover"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="px-5 py-2.5 text-base font-normal text-white bg-[#17B26A] rounded-full transition-colors hover:bg-[#129955]"
+                        className="px-5 py-2.5 text-base font-normal text-white bg-success-accent rounded-full transition-colors hover:bg-success-accent-hover"
                     >
                         Confirm
                     </button>
@@ -87,7 +90,7 @@ const RejectEntirePlanModal = ({ isOpen, onClose, onConfirm }: RejectEntirePlanM
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Blurred backdrop */}
             <div
-                className="fixed inset-0 bg-[#0000003D] backdrop-blur-[16px]"
+                className="fixed inset-0 bg-overlay backdrop-blur-[16px]"
                 onClick={onClose}
                 aria-hidden="true"
             />
@@ -104,7 +107,7 @@ const RejectEntirePlanModal = ({ isOpen, onClose, onConfirm }: RejectEntirePlanM
                     <button
                         onClick={onClose}
                         aria-label="Close reject modal"
-                        className="bg-[#EDEBE3] rounded-full size-8 flex items-center justify-center transition-colors"
+                        className="bg-sec rounded-full size-8 flex items-center justify-center transition-colors"
                     >
                         <X size={18} />
                     </button>
@@ -114,13 +117,13 @@ const RejectEntirePlanModal = ({ isOpen, onClose, onConfirm }: RejectEntirePlanM
                 <div className="flex justify-end gap-2 bg-white mt-6">
                     <button
                         onClick={onClose}
-                        className="px-5 py-2.5 text-base font-normal text-[#F04438] bg-[#FEE4E2] rounded-full transition-colors hover:bg-[#FECDCA]"
+                        className="px-5 py-2.5 text-base font-normal text-error-accent bg-error-pale rounded-full transition-colors hover:bg-error-pale-hover"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="px-5 py-2.5 text-base font-normal text-white bg-[#F04438] rounded-full transition-colors hover:bg-[#B42318]"
+                        className="px-5 py-2.5 text-base font-normal text-white bg-error-accent rounded-full transition-colors hover:bg-danger-hover"
                     >
                         Confirm Reject
                     </button>
@@ -133,6 +136,16 @@ const RejectEntirePlanModal = ({ isOpen, onClose, onConfirm }: RejectEntirePlanM
 const Page = () => {
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false)
     const [isRejectEntireModalOpen, setIsRejectEntireModalOpen] = useState(false)
+
+    const additionalNotesSchema = z.object({
+        additionalNotes: z.string().optional(),
+    })
+
+    const additionalNotesForm = useForm<z.infer<typeof additionalNotesSchema>>({
+        resolver: zodResolver(additionalNotesSchema),
+        defaultValues: { additionalNotes: '' },
+        mode: "onSubmit",
+    })
 
     const handleApproveClick = () => {
         setIsApproveModalOpen(true)
@@ -179,7 +192,7 @@ const Page = () => {
                             Patient ID: <span>P-45123 • Submitted Jan 24,2026</span>
                         </p>
                     </div>
-                    <span className='w-max h-fit py-3 px-4 font-normal text-base border rounded-full bg-[#FEF3C6] border-[#FEE685] text-pry'>
+                    <span className='w-max h-fit py-3 px-4 font-normal text-base border rounded-full bg-warning-bg border-warning-border text-pry'>
                         Pending Approvals
                     </span>
                 </div>
@@ -188,7 +201,7 @@ const Page = () => {
                     <h3 className='text-lg font-medium'>Patient Information</h3>
                     <div className="flex flex-col md:flex-row gap-8">
                         <div className="max-w-[519px] w-full flex flex-col gap-4">
-                            <div className="border border-[#0000001A] bg-white rounded-lg p-4 flex flex-col gap-4">
+                            <div className="border border-black-soft bg-white rounded-lg p-4 flex flex-col gap-4">
                                 <div className="flex items-center gap-5">
                                     <div className="size-12 flex items-center justify-center rounded-full border border-sec bg-sec">
                                         <Image src={profileimage} width={48} height={48} className='size-[48px] rounded-full object-contain' alt='image' />
@@ -214,7 +227,7 @@ const Page = () => {
                                     <h4 className='text-base font-medium leading-[100%]'>123 Main St, New York, NY 10001</h4>
                                 </div>
                             </div>
-                            <div className="border border-[#0000001A] bg-white rounded-lg p-6 flex flex-col gap-4">
+                            <div className="border border-black-soft bg-white rounded-lg p-6 flex flex-col gap-4">
                                 <div className="flex flex-col gap-6">
                                     <h3 className='text-lg font-medium'>Patient Images</h3>
                                     <div className="flex flex-col gap-4">
@@ -235,13 +248,13 @@ const Page = () => {
                             </div>
                         </div>
                         <div className="w-full flex-1 flex flex-col gap-6">
-                            <div className="border border-[#0000001A] bg-white rounded-lg p-6 flex flex-col gap-4">
+                            <div className="border border-black-soft bg-white rounded-lg p-6 flex flex-col gap-4">
                                 <div className="flex flex-col gap-4">
                                     <h3 className='text-lg font-medium'>Questionnaire Answers</h3>
                                     <Questionnaire />
                                 </div>
                             </div>
-                            <div className="border border-[#0000001A] bg-white rounded-lg p-6 flex flex-col gap-4">
+                            <div className="border border-black-soft bg-white rounded-lg p-6 flex flex-col gap-4">
                                 <div className="flex flex-col gap-4">
                                     <h3 className='text-lg font-medium'>AI Skin Analysis Summary</h3>
                                     <SkinAnalysisSummary />
@@ -249,7 +262,7 @@ const Page = () => {
                             </div>
                             <div className="flex flex-col gap-4">
                                 <h3 className='text-lg font-medium'>AI Recommended Treatment Plan</h3>
-                                <div className="border border-[#0000001A] bg-white rounded-lg p-6 flex flex-col gap-4">
+                                <div className="border border-black-soft bg-white rounded-lg p-6 flex flex-col gap-4">
                                     <div className="flex flex-col gap-6">
                                         <RecommendedTreatmentPlan />
                                     </div>
@@ -257,8 +270,13 @@ const Page = () => {
                             </div>
                             <div className="flex flex-col gap-4">
                                 <h3 className='text-lg font-medium'>Doctor Notes</h3>
-                                <form action="">
-                                    <textarea name="additionalNotes" id="additionalNotes" className='resize-none w-full h-[120px] rounded-lg border border-sec focus:outline-none text-sm font-normal tracking-[-0.15px] py-3 px-4' placeholder='Add any additional notes or instructions for the patient...'></textarea>
+                                <form onSubmit={additionalNotesForm.handleSubmit(() => {})}>
+                                    <textarea
+                                        id="additionalNotes"
+                                        {...additionalNotesForm.register('additionalNotes')}
+                                        className='resize-none w-full h-[120px] rounded-lg border border-sec focus:outline-none text-sm font-normal tracking-[-0.15px] py-3 px-4'
+                                        placeholder='Add any additional notes or instructions for the patient...'
+                                    />
                                 </form>
                             </div>
 
@@ -266,14 +284,14 @@ const Page = () => {
                             <div className="grid grid-cols-2 gap-2.5 mt-2">
                                 <button
                                     onClick={handleApproveClick}
-                                    className="bg-[#17B26A] text-white text-base font-normal flex items-center justify-center gap-2 rounded-full h-[54px] w-full focus:outline-none hover:bg-[#129955] transition-colors"
+                                    className="bg-success-accent text-white text-base font-normal flex items-center justify-center gap-2 rounded-full h-[54px] w-full focus:outline-none hover:bg-success-accent-hover transition-colors"
                                 >
                                     <CircleCheckBig size={18} />
                                     Approve Plan
                                 </button>
                                 <button
                                     onClick={handleRejectEntireClick}
-                                    className="bg-[#F04438] text-white text-base font-normal flex items-center justify-center gap-2 rounded-full h-[54px] w-full focus:outline-none hover:bg-[#d33a2f] transition-colors"
+                                    className="bg-error-accent text-white text-base font-normal flex items-center justify-center gap-2 rounded-full h-[54px] w-full focus:outline-none hover:bg-error-hover transition-colors"
                                 >
                                     <CircleX size={18} />
                                     Reject Entire Plan

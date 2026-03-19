@@ -6,7 +6,7 @@ const data = [
         id: 1,
         name: "Total Patients",
         number: 1243,
-        bg: '#EDEBE3',
+        bg: 'bg-sec',
         image: (
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21.3337 28V25.3333C21.3337 23.9188 20.7718 22.5623 19.7716 21.5621C18.7714 20.5619 17.4148 20 16.0003 20H8.00033C6.58584 20 5.22928 20.5619 4.22909 21.5621C3.2289 22.5623 2.66699 23.9188 2.66699 25.3333V28" stroke="#CF604A" strokeWidth="2.66667" strokeLinecap="round" strokeLinejoin="round" />
@@ -20,7 +20,7 @@ const data = [
         id: 2,
         name: "Total Doctors",
         number: 24,
-        bg: '#F0FDFA',
+        bg: 'bg-teal-bg',
         image: (
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fillRule="evenodd" clip-rule="evenodd" d="M16 4.00065C13.7908 4.00065 12 5.79152 12 8.00065C12 10.2098 13.7908 12.0007 16 12.0007C18.2092 12.0007 20 10.2098 20 8.00065C20 5.79152 18.2092 4.00065 16 4.00065ZM9.33333 8.00065C9.33333 4.31876 12.3181 1.33398 16 1.33398C19.6819 1.33398 22.6667 4.31876 22.6667 8.00065C22.6667 11.6825 19.6819 14.6673 16 14.6673C12.3181 14.6673 9.33333 11.6825 9.33333 8.00065ZM4 26.6673C4 21.5127 8.17868 17.334 13.3333 17.334H18.6667C23.8213 17.334 28 21.5127 28 26.6673V29.334C28 30.0704 27.4031 30.6673 26.6667 30.6673C25.9303 30.6673 25.3333 30.0704 25.3333 29.334V26.6673C25.3333 22.9855 22.3485 20.0007 18.6667 20.0007H13.3333C9.65144 20.0007 6.66667 22.9855 6.66667 26.6673V29.334C6.66667 30.0704 6.06971 30.6673 5.33333 30.6673C4.59696 30.6673 4 30.0704 4 29.334V26.6673ZM13.3333 24.0007C13.7015 24.0007 14 24.2992 14 24.6673V26.0008H15.3333C15.7015 26.0008 16 26.2992 16 26.6674V28.0008C16 28.3689 15.7015 28.6674 15.3333 28.6674H14V30.0007C14 30.3688 13.7015 30.6673 13.3333 30.6673H12C11.6318 30.6673 11.3333 30.3688 11.3333 30.0007L11.3333 28.6674H10C9.63181 28.6674 9.33333 28.3689 9.33333 28.0008V26.6674C9.33333 26.2993 9.63181 26.0008 10 26.0008H11.3333V24.6673C11.3333 24.2992 11.6318 24.0007 12 24.0007H13.3333Z" fill="#17B26A" />
@@ -31,7 +31,7 @@ const data = [
         id: 3,
         name: "Pending Approvals",
         number: 48,
-        bg: '#F6F0EE',
+        bg: 'bg-surface',
         image: (
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.0003 2.66602C13.3632 2.66602 10.7854 3.448 8.59273 4.91309C6.40007 6.37817 4.69111 8.46055 3.68194 10.8969C2.67277 13.3333 2.40872 16.0141 2.92319 18.6006C3.43766 21.187 4.70754 23.5627 6.57224 25.4274C8.43694 27.2921 10.8127 28.562 13.3991 29.0765C15.9855 29.591 18.6664 29.3269 21.1028 28.3177C23.5391 27.3086 25.6215 25.5996 27.0866 23.4069C28.5517 21.2143 29.3337 18.6364 29.3337 15.9993C29.3337 14.2484 28.9888 12.5146 28.3187 10.8969C27.6487 9.27923 26.6665 7.80937 25.4284 6.57126C24.1903 5.33314 22.7205 4.35102 21.1028 3.68096C19.4851 3.01089 17.7513 2.66602 16.0003 2.66602ZM16.0003 26.666C13.8907 26.666 11.8284 26.0404 10.0742 24.8684C8.32012 23.6963 6.95295 22.0304 6.14562 20.0813C5.33828 18.1322 5.12705 15.9875 5.53862 13.9184C5.9502 11.8493 6.9661 9.94864 8.45786 8.45688C9.94962 6.96512 11.8502 5.94922 13.9194 5.53764C15.9885 5.12606 18.1332 5.3373 20.0823 6.14463C22.0314 6.95197 23.6973 8.31914 24.8693 10.0733C26.0414 11.8274 26.667 13.8897 26.667 15.9993C26.667 18.8283 25.5432 21.5414 23.5428 23.5418C21.5424 25.5422 18.8293 26.666 16.0003 26.666Z" fill="#CF604A" />
@@ -43,7 +43,7 @@ const data = [
         id: 4,
         name: "Cases This Month",
         number: 892,
-        bg: '#F0FDFA',
+        bg: 'bg-teal-bg',
         image: (
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9.33333 21.3327C10.4 21.3327 11.3333 20.5327 11.3333 19.466C11.3333 19.3327 11.3333 19.1993 11.3333 19.066L15.0667 15.3327C15.3333 15.3327 15.4667 15.3327 15.7333 15.3327L17.8667 17.466V17.5993C17.8667 18.666 18.8 19.5993 19.8667 19.5993C20.9333 19.5993 21.8667 18.666 21.8667 17.5993V17.466L26.6667 12.666C27.7333 12.666 28.6667 11.7327 28.6667 10.666C28.6667 9.59935 27.7333 8.66602 26.6667 8.66602C25.6 8.66602 24.6667 9.59935 24.6667 10.666C24.6667 10.7993 24.6667 10.7993 24.6667 10.9327L19.8667 15.7327H19.7333H19.6L17.3333 13.3327C17.3333 12.266 16.2667 11.3327 15.2 11.466C14.1333 11.466 13.3333 12.266 13.3333 13.3327L9.33333 17.3327C8.26667 17.3327 7.33333 18.266 7.33333 19.3327C7.33333 20.3993 8.26667 21.3327 9.33333 21.3327ZM27.3333 26.666H4.66667V3.99935C4.66667 3.19935 4.13333 2.66602 3.33333 2.66602C2.53333 2.66602 2 3.19935 2 3.99935V27.9993C2 28.7993 2.53333 29.3327 3.33333 29.3327H27.3333C28.1333 29.3327 28.6667 28.7993 28.6667 27.9993C28.6667 27.1993 28.1333 26.666 27.3333 26.666Z" fill="#17B26A" />
@@ -53,7 +53,7 @@ const data = [
 ]
 const DashboardCard = () => {
     return (
-        <div className='bg-[#F6F0EE] rounded-xl p-5 flex flex-col gap-6'>
+        <div className='bg-surface rounded-xl p-5 flex flex-col gap-6'>
             <div className="flex flex-col gap-2">
                 <h3 className='text-[28px] font-medium'>Admin Dashboard</h3>
                 <p className='text-sm font-normal'>Complete overview of system activity and management</p>
@@ -61,16 +61,16 @@ const DashboardCard = () => {
             <div className='grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4'>
                 {data.map((datum) =>
                     <div key={datum.id} className="relative border border-sec py-6 px-5 rounded-xl bg-white flex gap-3 items-center">
-                        <div className={`size-16 flex items-center justify-center rounded-full bg-[${datum.bg}]`}>
+                        <div className={`size-16 flex items-center justify-center rounded-full ${datum.bg}`}>
                             {datum.image}
                         </div>
                         <div className="w-full flex-1 flex flex-col gap-3">
                             <h3 className='font-bold text-2xl md:text-[32px]'>{datum.number}</h3>
                             <p className='font-normal text-sm md:text-base'>{datum.name}</p>
                         </div>
-                        <div className="border border-[#ABEFC6] absolute right-3.5 top-3.5 flex items-center justify-center gap-1 bg-[#ECFDF3] h-6 px-2.5 w-max rounded-full">
-                            <ArrowUp size={12} className='text-[#17B26A]' />
-                            <span className='text-sm text-[#067647] font-medium'>10%</span>
+                        <div className="border border-success-pale-border absolute right-3.5 top-3.5 flex items-center justify-center gap-1 bg-success-pale h-6 px-2.5 w-max rounded-full">
+                            <ArrowUp size={12} className='text-success-accent' />
+                            <span className='text-sm text-success-muted font-medium'>10%</span>
                         </div>
                     </div>
                 )}

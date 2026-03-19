@@ -1,10 +1,11 @@
 import { ArrowUp, ArrowDown } from 'lucide-react'
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 const data = [
     {
         id: 1,
-        name: "Total Cases (This Month)",
+        labelKey: "metrics.totalCasesThisMonth",
         number: '98',
         bg: '#F0FDFA',
         rate: '+7.4%',
@@ -19,7 +20,7 @@ const data = [
     },
     {
         id: 2,
-        name: "Approval Rate",
+        labelKey: "metrics.approvalRate",
         number: '87.8%',
         bg: '#F0FDFA',
         rate: '+2.1%',
@@ -34,7 +35,7 @@ const data = [
     },
     {
         id: 3,
-        name: "Avg Review Time",
+        labelKey: "metrics.avgReviewTime",
         number: '8.2 hrs',
         bg: '#F0FDFA',
         rate: '+12%',
@@ -49,7 +50,7 @@ const data = [
     },
     {
         id: 4,
-        name: "Rejection Rate",
+        labelKey: "metrics.rejectionRate",
         number: '12.2%',
         bg: '#F0FDFA',
         rate: '-1.8%',
@@ -65,6 +66,7 @@ const data = [
 ]
 
 const AnalyticsHero = () => {
+    const t = useTranslations("admin.analytics")
     // Function to determine if rate is positive or negative
     const isPositiveRate = (rate: string) => {
         return rate.startsWith('+');
@@ -76,10 +78,10 @@ const AnalyticsHero = () => {
     }
 
     return (
-        <div className='bg-[#F6F0EE] rounded-xl p-5 flex flex-col gap-6'>
+        <div className='bg-surface rounded-xl p-5 flex flex-col gap-6'>
             <div className="flex flex-col gap-2">
-                <h3 className='text-[28px] font-medium'>Analytics Overview</h3>
-                <p className='text-sm font-normal'>System performance and insights</p>
+                <h3 className='text-[28px] font-medium'>{t("title")}</h3>
+                <p className='text-sm font-normal'>{t("subtitle")}</p>
             </div>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4'>
                 {data.map((datum) => {
@@ -93,18 +95,18 @@ const AnalyticsHero = () => {
                             </div>
                             <div className="w-full flex-1 flex flex-col gap-3">
                                 <h3 className='font-bold text-2xl md:text-[32px]'>{datum.number}</h3>
-                                <p className='font-normal text-sm md:text-base'>{datum.name}</p>
+                                <p className='font-normal text-sm md:text-base'>{t(datum.labelKey)}</p>
                             </div>
                             <div className={`border absolute right-3.5 top-3.5 flex items-center justify-center gap-1 h-6 px-2.5 w-max rounded-full ${isPositive
-                                ? 'border-[#ABEFC6] bg-[#ECFDF3]'
-                                : 'border-[#FECACA] bg-[#FEF2F2]'
+                                ? 'border-success-pale-border bg-success-pale'
+                                : 'border-error-soft-border bg-error-soft-bg'
                                 }`}>
                                 {isPositive ? (
-                                    <ArrowUp size={12} className='text-[#17B26A]' />
+                                    <ArrowUp size={12} className='text-success-accent' />
                                 ) : (
-                                    <ArrowDown size={12} className='text-[#F04438]' />
+                                    <ArrowDown size={12} className='text-error-accent' />
                                 )}
-                                <span className={`text-sm font-medium ${isPositive ? 'text-[#067647]' : 'text-[#B42318]'
+                                <span className={`text-sm font-medium ${isPositive ? 'text-success-muted' : 'text-danger-hover'
                                     }`}>
                                     {rateValue}
                                 </span>

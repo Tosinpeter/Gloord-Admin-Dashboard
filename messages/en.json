@@ -27,7 +27,212 @@
       "overview": "Overview",
       "doctors": "Doctors",
       "patients": "Patients",
-      "allCases": "All Cases"
+      "allCases": "All Cases",
+      "analytics": "Analytics",
+      "productCatalog": "Product Catalog"
+    },
+    "doctors": {
+      "title": "Doctor Management",
+      "summary": "{total} doctors · {activeCount} active · {inactiveCount} inactive",
+      "offline": {
+        "readOnlyMode": "Offline mode: cached doctor data is read-only until connection is restored.",
+        "offlineActionsMayFail": "You are offline. Actions that require network may fail.",
+        "cachedReconnectAddDoctors": "You are offline with cached data. Reconnect to add doctors.",
+        "cachedReconnectDeleteDoctors": "You are offline with cached data. Reconnect to delete doctors."
+      },
+      "modal": {
+        "title": "Add New Doctor",
+        "description": "Enter the details of the new doctor to add them to the system.",
+        "closeAriaLabel": "Close add doctor modal",
+        "fields": {
+          "fullName": "Full Name",
+          "emailAddress": "Email Address",
+          "phoneNumber": "Phone Number",
+          "specialty": "Specialty",
+          "licenseNumber": "License Number",
+          "yearsOfExperience": "Years of Experience"
+        },
+        "placeholders": {
+          "fullName": "Dr. Full Name",
+          "email": "doctor@example.com",
+          "phone": "+1 (555) 000-0000",
+          "specialty": "e.g. Dermatology",
+          "license": "License number",
+          "experience": "e.g. 10"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "addDoctor": "Add Doctor",
+          "adding": "Adding..."
+        },
+        "validation": {
+          "fullNameRequired": "Full name is required.",
+          "emailRequired": "Email address is required.",
+          "emailInvalid": "Enter a valid email address.",
+          "phoneRequired": "Phone number is required.",
+          "specialtyRequired": "Specialty is required.",
+          "licenseRequired": "License number is required.",
+          "experienceNegative": "Years of experience cannot be negative."
+        }
+      },
+      "filters": {
+        "allDoctors": "All Doctors",
+        "active": "Active",
+        "inactive": "Inactive",
+        "filterFallback": "Filter"
+      },
+      "table": {
+        "doctor": "Doctor",
+        "specialty": "Specialty",
+        "cases": "Cases",
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected",
+        "lastActive": "Last Active",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "viewDetails": "View Details",
+        "removeDoctor": "Remove Doctor"
+      },
+      "confirmations": {
+        "removeDoctor": "Are you sure you want to remove this doctor? This action cannot be undone."
+      },
+      "empty": {
+        "noDoctorsFound": "No doctors found",
+        "tryAdjustSearchOrFilter": "Try adjusting your search or filter."
+      },
+      "searchPlaceholder": "Search by name, ID, or specialty...",
+      "pagination": {
+        "showing": "Showing {start}–{end} of {total}"
+      }
+    },
+    "patients": {
+      "notFound": "Patient not found",
+      "backToPatients": "Back to Patients",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "approvalRateLabel": "Approval Rate",
+      "stats": {
+        "totalCases": "Total Cases",
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected"
+      },
+      "patientInformationTitle": "Patient Information",
+      "fields": {
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "dateOfBirth": "Date of Birth",
+        "bloodType": "Blood Type",
+        "allergies": "Allergies",
+        "lastVisit": "Last Visit"
+      },
+      "registeredLabel": "Registered: {date}",
+      "caseHistory": {
+        "title": "Case History",
+        "subtitle": "All treatment cases for this patient"
+      },
+      "table": {
+        "case": "Case",
+        "doctor": "Doctor",
+        "condition": "Condition",
+        "aiConf": "AI Conf.",
+        "status": "Status",
+        "date": "Date"
+      },
+      "caseStatus": {
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected"
+      }
+    },
+    "productCatalog": {
+      "title": "All Products",
+      "counts": "{products} products · {categories} categories",
+      "hero": {
+        "title": "Admin Dashboard",
+        "subtitle": "Complete overview of system activity and management",
+        "metrics": {
+          "activeInCatalog": "Active in Catalog",
+          "productCategories": "Product categories",
+          "productsCount": "6 Products",
+          "uniqueIngredients": "Unique Ingredients"
+        }
+      },
+      "searchPlaceholder": "Search by name, category, or ingredient...",
+      "filters": {
+        "allProducts": "All Products",
+        "gentle": "Gentle",
+        "moderate": "Moderate",
+        "strong": "Strong",
+        "filterFallback": "Filter"
+      },
+      "modal": {
+        "closeAriaLabel": "Close product modal",
+        "fillRequiredInfo": "Fill in all required information.",
+        "titles": {
+          "add": "Add New Product",
+          "edit": "Edit Product"
+        },
+        "fields": {
+          "productName": "Product Name",
+          "category": "Category",
+          "strength": "Strength",
+          "description": "Description",
+          "usageInstructions": "Usage Instructions"
+        },
+        "placeholders": {
+          "productName": "Enter product name",
+          "select": "Select",
+          "strength": "Select",
+          "usageInstructions": "e.g. Morning & Evening"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "addProduct": "Add Product",
+          "saveChanges": "Save Changes"
+        }
+      },
+      "table": {
+        "product": "Product",
+        "category": "Category",
+        "keyIngredients": "Key Ingredients",
+        "strength": "Strength",
+        "skinTypes": "Skin Types",
+        "usage": "Usage"
+      },
+      "actions": {
+        "editProduct": "Edit Product",
+        "deleteProduct": "Delete Product"
+      },
+      "confirmations": {
+        "deleteProduct": "Are you sure you want to delete this product? This action cannot be undone."
+      },
+      "empty": {
+        "noProductsFound": "No products found",
+        "tryAdjustSearchOrFilter": "Try adjusting your search or filter."
+      },
+      "pagination": {
+        "showing": "Showing {start}–{end} of {total}"
+      }
+    },
+    "analytics": {
+      "title": "Analytics Overview",
+      "subtitle": "System performance and insights",
+      "metrics": {
+        "totalCasesThisMonth": "Total Cases (This Month)",
+        "approvalRate": "Approval Rate",
+        "avgReviewTime": "Avg Review Time",
+        "rejectionRate": "Rejection Rate"
+      }
     }
   },
   "charts": {
@@ -40,5 +245,25 @@
       "rosacea": "Rosacea",
       "other": "Other"
     }
+  },
+  "doctor": {
+    "nav": {
+      "overview": "Overview",
+      "pendingApprovals": "Pending Approvals",
+      "approvedCases": "Approved Cases",
+      "rejectedCases": "Rejected Cases"
+    }
+  },
+  "errors": {
+    "noAccessTitle": "No access",
+    "noAccessBody": "You do not have permission to view this page. Switch to the correct account or go back to a permitted area.",
+    "returnToLogin": "Return to login",
+    "somethingWentWrong": "Something went wrong",
+    "routeErrorBody": "We could not complete this action. Please try again. If this continues, refresh the page and contact support with this reference: {digest}.",
+    "tryAgain": "Try again",
+    "goHome": "Go home",
+    "applicationErrorTitle": "Application error",
+    "applicationErrorBody": "The app encountered an unexpected error. Try again. If the problem continues, contact support with reference: {digest}.",
+    "reloadAppState": "Reload app state"
   }
 }

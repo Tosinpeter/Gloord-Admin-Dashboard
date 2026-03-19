@@ -49,12 +49,12 @@ const TopDoctors = () => {
 
     return (
         // <div className='flex-1 w-full'>
-        <div className="flex flex-col gap-6 p-6 border border-[#EDEBE3] rounded-2xl bg-white">
+        <div className="flex flex-col gap-6 p-6 border border-sec rounded-2xl bg-white">
             <h3 className='text-2xl font-medium'>Top Performing Doctors</h3>
 
             <div className="flex flex-col">
                 {activityData.map((activity) => (
-                    <div key={activity.id} className="border-t border-[#EDEBE3] py-3 w-full">
+                    <div key={activity.id} className="border-t border-sec py-3 w-full">
                         <div className="flex justify-between gap-3 items-center">
                             <div className="flex items-center gap-2">
                                 <div className="size-10 rounded-full">

@@ -1,7 +1,7 @@
 'use client'
 import AdminHeader from '@/components/admin/AdminHeader'
 import { ChevronLeft, ChevronRight, ListFilter, Search } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
     Table,
     TableBody,
@@ -13,6 +13,14 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import AccessGate from '@/components/AccessGate'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
+import {
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
 
 interface Case {
     id: string;
@@ -54,16 +62,17 @@ const casesData: Case[] = [
 ]
 
 const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
-    approved: { label: 'Approved', color: 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]', dot: 'bg-[#17B26A]' },
-    pending: { label: 'Pending', color: 'text-[#93370D] bg-[#FEF3C6] border-[#FEE685]', dot: 'bg-[#F79009]' },
-    rejected: { label: 'Rejected', color: 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]', dot: 'bg-[#F04438]' },
+    approved: { label: 'Approved', color: 'text-success bg-success-bg border-success-border', dot: 'bg-success-accent' },
+    pending: { label: 'Pending', color: 'text-warning-text-alt bg-warning-bg border-warning-border', dot: 'bg-warning-dot' },
+    rejected: { label: 'Rejected', color: 'text-error-text-alt bg-error-bg-alt border-error-soft-border', dot: 'bg-error-accent' },
 }
 
 const Page = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false)
     const [selectedFilter, setSelectedFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
-    const [currentPage, setCurrentPage] = useState(1)
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: ROWS_PER_PAGE })
     const filterButtonRef = useRef<HTMLButtonElement>(null)
     const filterDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -77,25 +86,85 @@ const Page = () => {
     const handleFilterSelect = (filter: string) => {
         setSelectedFilter(filter)
         setIsFilterOpen(false)
-        setCurrentPage(1)
+        setPagination({ pageIndex: 0, pageSize: ROWS_PER_PAGE })
     }
 
-    const filteredCases = casesData.filter(c => {
-        const matchesFilter = selectedFilter === 'all' || c.status === selectedFilter
-        const matchesSearch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.caseId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.concern.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.doctorName.toLowerCase().includes(searchQuery.toLowerCase())
-        return matchesFilter && matchesSearch
+    const columns = useMemo<ColumnDef<Case>[]>(
+        () => [
+            { accessorKey: "caseId", header: "Case ID", enableSorting: true },
+            { accessorKey: "patientName", header: "Patient", enableSorting: true },
+            { accessorKey: "concern", header: "Concern", enableSorting: false },
+            { accessorKey: "confidence", header: "Confidence", enableSorting: true },
+            { accessorKey: "submitted", header: "Submitted", enableSorting: true },
+            {
+                accessorKey: "status",
+                header: "Status",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const status = row.original.status
+                    return (
+                        <span
+                            className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-medium border ${
+                                status === "approved"
+                                    ? "text-success bg-success-bg border-success-border"
+                                    : status === "pending"
+                                      ? "text-warning-text-alt bg-warning-bg border-warning-border"
+                                      : "text-error-text-alt bg-error-bg-alt border-error-soft-border"
+                            }`}
+                        >
+                            <span
+                                className={`size-1.5 rounded-full mr-1.5 ${
+                                    status === "approved"
+                                        ? "bg-success-accent"
+                                        : status === "pending"
+                                          ? "bg-warning-dot"
+                                          : "bg-error-accent"
+                                }`}
+                            />
+                            {status[0].toUpperCase() + status.slice(1)}
+                        </span>
+                    )
+                },
+            },
+        ],
+        [],
+    )
+
+    const table = useReactTable<Case>({
+        data: casesData,
+        columns,
+        getRowId: (row) => row.id,
+        state: {
+            sorting,
+            globalFilter: searchQuery,
+            pagination,
+        },
+        onSortingChange: setSorting,
+        onGlobalFilterChange: setSearchQuery,
+        onPaginationChange: setPagination,
+        globalFilterFn: (row, _columnId, filterValue) => {
+            const q = String(filterValue ?? "").toLowerCase().trim()
+            const statusOk = selectedFilter === "all" || row.original.status === selectedFilter
+            if (!q) return statusOk
+            return (
+                statusOk &&
+                (row.original.patientName.toLowerCase().includes(q) ||
+                    row.original.caseId.toLowerCase().includes(q) ||
+                    row.original.patientId.toLowerCase().includes(q) ||
+                    row.original.concern.toLowerCase().includes(q) ||
+                    row.original.doctorName.toLowerCase().includes(q))
+            )
+        },
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
     })
 
-    const totalPages = Math.ceil(filteredCases.length / ROWS_PER_PAGE)
-    const effectiveCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1
-    const paginatedCases = filteredCases.slice(
-        (effectiveCurrentPage - 1) * ROWS_PER_PAGE,
-        effectiveCurrentPage * ROWS_PER_PAGE,
-    )
+    const filteredCount = table.getFilteredRowModel().rows.length
+    const totalPages = table.getPageCount()
+    const effectiveCurrentPage = table.getState().pagination.pageIndex + 1
+    const paginatedCases = table.getRowModel().rows.map((r) => r.original)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -130,21 +199,24 @@ const Page = () => {
                     {/* Toolbar */}
                     <div className="flex flex-col md:flex-row items-start gap-3 md:items-center justify-between">
                         <div className="flex flex-wrap gap-2 items-start md:items-center">
-                            <div className="flex items-center gap-2 border border-[#EDEBE3] bg-white w-[300px] h-[42px] rounded-full px-4">
+                            <div className="flex items-center gap-2 border border-sec bg-white w-[300px] h-[42px] rounded-full px-4">
                                 <Search size={18} className="text-gray-400" />
                                 <input
                                     type="search"
                                     placeholder='Search by patient, case ID, or concern...'
                                     className='border-none h-full w-full focus:outline-none bg-transparent text-sm'
                                     value={searchQuery}
-                                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value)
+                                        setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+                                    }}
                                 />
                             </div>
                             <div className="relative">
                                 <button
                                     ref={filterButtonRef}
                                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                                    className="flex items-center gap-2 border border-[#EDEBE3] bg-white w-max h-[42px] rounded-full px-4 hover:bg-gray-50 transition-colors"
+                                    className="flex items-center gap-2 border border-sec bg-white w-max h-[42px] rounded-full px-4 hover:bg-gray-50 transition-colors"
                                 >
                                     <ListFilter size={18} />
                                     <span className='text-sm font-normal w-max'>
@@ -159,7 +231,7 @@ const Page = () => {
                                                     <button
                                                         key={filter.value}
                                                         onClick={() => handleFilterSelect(filter.value)}
-                                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${selectedFilter === filter.value ? 'bg-[#EDEBE3] font-medium' : 'hover:bg-gray-50'}`}
+                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${selectedFilter === filter.value ? 'bg-sec font-medium' : 'hover:bg-gray-50'}`}
                                                     >
                                                         {filter.label}
                                                     </button>
@@ -173,10 +245,10 @@ const Page = () => {
                     </div>
 
                     {/* Table */}
-                    <div className="border border-[#EDEBE3] rounded-2xl overflow-hidden">
+                    <div className="border border-sec rounded-2xl overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-[#FAFAF8] hover:bg-[#FAFAF8]">
+                                <TableRow className="bg-surface-variant hover:bg-surface-variant">
                                     <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">Case ID</TableHead>
                                     <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Patient</TableHead>
                                     <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Doctor</TableHead>
@@ -191,13 +263,13 @@ const Page = () => {
                                 {paginatedCases.map((c) => {
                                     const sc = statusConfig[c.status]
                                     return (
-                                        <TableRow key={c.id} className="hover:bg-[#FAFAF8] group">
+                                    <TableRow key={c.id} className="hover:bg-surface-variant group">
                                             <TableCell className="pl-6">
                                                 <Link href={`/admin/all-cases/${c.caseId}`} className="text-sm font-medium text-pry hover:underline">{c.caseId}</Link>
                                             </TableCell>
                                             <TableCell>
                                                 <Link href={`/admin/patients/${c.patientId}`} className="flex items-center gap-3">
-                                                    <div className="size-9 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                                                    <div className="size-9 rounded-full overflow-hidden bg-sec shrink-0">
                                                         <Image src={c.image} width={36} height={36} alt={c.patientName} className='size-9 object-cover rounded-full' />
                                                     </div>
                                                     <div className="flex flex-col">
@@ -216,7 +288,7 @@ const Page = () => {
                                                 <span className="text-sm text-gray-600 line-clamp-1">{c.concern}</span>
                                             </TableCell>
                                             <TableCell className="text-center hidden md:table-cell">
-                                                <span className={`text-sm font-medium ${c.confidence >= 90 ? 'text-[#17B26A]' : c.confidence >= 80 ? 'text-[#F79009]' : 'text-[#F04438]'}`}>
+                                                <span className={`text-sm font-medium ${c.confidence >= 90 ? 'text-success-accent' : c.confidence >= 80 ? 'text-warning-dot' : 'text-error-accent'}`}>
                                                     {c.confidence}%
                                                 </span>
                                             </TableCell>
@@ -232,7 +304,7 @@ const Page = () => {
                                             <TableCell className="pr-6">
                                                 <Link
                                                     href={`/admin/case-review`}
-                                                    className="inline-flex items-center whitespace-nowrap h-8 px-4 rounded-full text-sm font-normal bg-[#EDEBE3] hover:bg-[#E0DED6] transition-colors"
+                                                    className="inline-flex items-center whitespace-nowrap h-8 px-4 rounded-full text-sm font-normal bg-sec hover:bg-sec-hover transition-colors"
                                                 >
                                                     View Details
                                                 </Link>
@@ -243,7 +315,7 @@ const Page = () => {
                             </TableBody>
                         </Table>
 
-                        {filteredCases.length === 0 && (
+                        {filteredCount === 0 && (
                             <div className="text-center py-12 text-gray-400">
                                 <p className="text-base font-medium">No cases found</p>
                                 <p className="text-sm mt-1">Try adjusting your search or filter.</p>
@@ -252,16 +324,16 @@ const Page = () => {
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between px-6 py-4 border-t border-[#EDEBE3]">
+                            <div className="flex items-center justify-between px-6 py-4 border-t border-sec">
                                 <p className="text-sm text-gray-500">
-                                    Showing {(effectiveCurrentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(effectiveCurrentPage * ROWS_PER_PAGE, filteredCases.length)} of {filteredCases.length}
+                                    Showing {(effectiveCurrentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(effectiveCurrentPage * ROWS_PER_PAGE, filteredCount)} of {filteredCount}
                                 </p>
                                 <div className="flex items-center gap-1">
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(Math.max(1, effectiveCurrentPage - 1))}
+                                        onClick={() => table.previousPage()}
                                         disabled={effectiveCurrentPage === 1}
-                                        className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                        className="size-8 flex items-center justify-center rounded-lg border border-sec hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronLeft size={16} />
                                     </button>
@@ -269,7 +341,7 @@ const Page = () => {
                                         <button
                                             key={page}
                                             type="button"
-                                            onClick={() => setCurrentPage(page)}
+                                            onClick={() => table.setPageIndex(page - 1)}
                                             className={`size-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                                                 page === effectiveCurrentPage
                                                     ? 'bg-pry text-white'
@@ -281,9 +353,9 @@ const Page = () => {
                                     ))}
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage(Math.min(totalPages, effectiveCurrentPage + 1))}
+                                        onClick={() => table.nextPage()}
                                         disabled={effectiveCurrentPage === totalPages}
-                                        className="size-8 flex items-center justify-center rounded-lg border border-[#EDEBE3] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                        className="size-8 flex items-center justify-center rounded-lg border border-sec hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                     >
                                         <ChevronRight size={16} />
                                     </button>

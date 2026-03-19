@@ -12,14 +12,229 @@
     "emailPlaceholder": "Saisissez votre e-mail",
     "signIn": "Se connecter",
     "heroTitle": "Vous voyez la surface, nous comprenons votre peau",
-    "heroBody": "Nous découvrons ce qui se passe réellement avec votre peau et comment la traiter. C’est ici que commence votre prise en charge."
+    "heroBody": "Nous découvrons ce qui se passe réellement avec votre peau et comment la traiter. C’est ici que commence votre prise en charge.",
+    "heroTitle1": "Vous voyez la surface, nous comprenons votre peau",
+    "heroBody1": "Nous découvrons ce qui se passe réellement avec votre peau et comment la traiter. C’est ici que commence votre prise en charge.",
+    "heroTitle2": "Analyse avancée de la peau",
+    "heroBody2": "Notre technologie alimentée par l’IA analyse vos préoccupations cutanées avec précision et recommande des traitements personnalisés.",
+    "heroTitle3": "Dermatologues experts",
+    "heroBody3": "Connectez-vous avec des dermatologues certifiés qui comprennent vos besoins uniques.",
+    "heroTitle4": "Plans de traitement personnalisés",
+    "heroBody4": "Recevez des plans de traitement conçus spécialement pour vos préoccupations cutanées et vos objectifs.",
+    "heroTitle5": "Suivez vos progrès",
+    "heroBody5": "Surveillez l’amélioration de votre peau au fil du temps grâce à nos outils de suivi."
   },
   "admin": {
     "tabs": {
       "overview": "Aperçu",
       "doctors": "Médecins",
       "patients": "Patients",
-      "allCases": "Tous les cas"
+      "allCases": "Tous les cas",
+      "analytics": "Analyses",
+      "productCatalog": "Catalogue de produits"
+    },
+    "doctors": {
+      "title": "Gestion des médecins",
+      "summary": "{total} médecins · {activeCount} actifs · {inactiveCount} inactifs",
+      "offline": {
+        "readOnlyMode": "Mode hors ligne : les données des médecins mises en cache sont en lecture seule jusqu’au rétablissement de la connexion.",
+        "offlineActionsMayFail": "Vous êtes hors ligne. Les actions nécessitant un réseau peuvent échouer.",
+        "cachedReconnectAddDoctors": "Vous êtes hors ligne avec des données mises en cache. Reconnectez-vous pour ajouter des médecins.",
+        "cachedReconnectDeleteDoctors": "Vous êtes hors ligne avec des données mises en cache. Reconnectez-vous pour supprimer des médecins."
+      },
+      "modal": {
+        "title": "Ajouter un nouveau médecin",
+        "description": "Entrez les détails du nouveau médecin pour l’ajouter au système.",
+        "closeAriaLabel": "Fermer la fenêtre d’ajout de médecin",
+        "fields": {
+          "fullName": "Nom complet",
+          "emailAddress": "Adresse e-mail",
+          "phoneNumber": "Numéro de téléphone",
+          "specialty": "Spécialité",
+          "licenseNumber": "Numéro de licence",
+          "yearsOfExperience": "Années d’expérience"
+        },
+        "placeholders": {
+          "fullName": "Dr. Nom complet",
+          "email": "doctor@example.com",
+          "phone": "+1 (555) 000-0000",
+          "specialty": "ex : Dermatologie",
+          "license": "Numéro de licence",
+          "experience": "ex : 10"
+        },
+        "buttons": {
+          "cancel": "Annuler",
+          "addDoctor": "Ajouter un médecin",
+          "adding": "Ajout..."
+        },
+        "validation": {
+          "fullNameRequired": "Le nom complet est requis.",
+          "emailRequired": "L’adresse e-mail est requise.",
+          "emailInvalid": "Saisissez une adresse e-mail valide.",
+          "phoneRequired": "Le numéro de téléphone est requis.",
+          "specialtyRequired": "La spécialité est requise.",
+          "licenseRequired": "Le numéro de licence est requis.",
+          "experienceNegative": "Les années d’expérience ne peuvent pas être négatives."
+        }
+      },
+      "filters": {
+        "allDoctors": "Tous les médecins",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "filterFallback": "Filtre"
+      },
+      "table": {
+        "doctor": "Médecin",
+        "specialty": "Spécialité",
+        "cases": "Cas",
+        "approved": "Approuvé",
+        "pending": "En attente",
+        "rejected": "Rejeté",
+        "lastActive": "Dernière activité",
+        "status": "Statut"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "viewDetails": "Voir les détails",
+        "removeDoctor": "Supprimer le médecin"
+      },
+      "confirmations": {
+        "removeDoctor": "Êtes-vous sûr de vouloir supprimer ce médecin ? Cette action est irréversible."
+      },
+      "empty": {
+        "noDoctorsFound": "Aucun médecin trouvé",
+        "tryAdjustSearchOrFilter": "Essayez d’ajuster votre recherche ou filtre."
+      },
+      "searchPlaceholder": "Rechercher par nom, ID ou spécialité...",
+      "pagination": {
+        "showing": "Afficher {start}–{end} sur {total}"
+      }
+    },
+    "patients": {
+      "notFound": "Patient introuvable",
+      "backToPatients": "Retour aux patients",
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "approvalRateLabel": "Taux d’approbation",
+      "stats": {
+        "totalCases": "Total des cas",
+        "approved": "Approuvé",
+        "pending": "En attente",
+        "rejected": "Rejeté"
+      },
+      "patientInformationTitle": "Informations du patient",
+      "fields": {
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "address": "Adresse",
+        "dateOfBirth": "Date de naissance",
+        "bloodType": "Type sanguin",
+        "allergies": "Allergies",
+        "lastVisit": "Dernière visite"
+      },
+      "registeredLabel": "Inscrit le : {date}",
+      "caseHistory": {
+        "title": "Historique des cas",
+        "subtitle": "Toutes les affaires de traitement pour ce patient"
+      },
+      "table": {
+        "case": "Cas",
+        "doctor": "Médecin",
+        "condition": "Condition",
+        "aiConf": "Confiance IA",
+        "status": "Statut",
+        "date": "Date"
+      },
+      "caseStatus": {
+        "approved": "Approuvé",
+        "pending": "En attente",
+        "rejected": "Rejeté"
+      }
+    },
+    "productCatalog": {
+      "title": "Tous les produits",
+      "counts": "{products} produits · {categories} catégories",
+      "hero": {
+        "title": "Tableau de bord",
+        "subtitle": "Vue d’ensemble complète de l’activité du système et de la gestion",
+        "metrics": {
+          "activeInCatalog": "Actif dans le catalogue",
+          "productCategories": "Catégories de produits",
+          "productsCount": "6 produits",
+          "uniqueIngredients": "Ingrédients uniques"
+        }
+      },
+      "searchPlaceholder": "Rechercher par nom, catégorie ou ingrédient...",
+      "filters": {
+        "allProducts": "Tous les produits",
+        "gentle": "Doux",
+        "moderate": "Modéré",
+        "strong": "Fort",
+        "filterFallback": "Filtre"
+      },
+      "modal": {
+        "closeAriaLabel": "Fermer la fenêtre produit",
+        "fillRequiredInfo": "Remplissez toutes les informations requises.",
+        "titles": {
+          "add": "Ajouter un nouveau produit",
+          "edit": "Modifier le produit"
+        },
+        "fields": {
+          "productName": "Nom du produit",
+          "category": "Catégorie",
+          "strength": "Intensité",
+          "description": "Description",
+          "usageInstructions": "Instructions d’utilisation"
+        },
+        "placeholders": {
+          "productName": "Saisissez le nom du produit",
+          "select": "Sélectionner",
+          "strength": "Sélectionner",
+          "usageInstructions": "Ex : Matin et soir"
+        },
+        "buttons": {
+          "cancel": "Annuler",
+          "addProduct": "Ajouter un produit",
+          "saveChanges": "Enregistrer les modifications"
+        }
+      },
+      "table": {
+        "product": "Produit",
+        "category": "Catégorie",
+        "keyIngredients": "Ingrédients clés",
+        "strength": "Intensité",
+        "skinTypes": "Types de peau",
+        "usage": "Utilisation"
+      },
+      "actions": {
+        "editProduct": "Modifier le produit",
+        "deleteProduct": "Supprimer le produit"
+      },
+      "confirmations": {
+        "deleteProduct": "Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible."
+      },
+      "empty": {
+        "noProductsFound": "Aucun produit trouvé",
+        "tryAdjustSearchOrFilter": "Essayez d’ajuster votre recherche ou filtre."
+      },
+      "pagination": {
+        "showing": "Afficher {start}–{end} sur {total}"
+      }
+    },
+    "analytics": {
+      "title": "Aperçu des analyses",
+      "subtitle": "Performances du système et informations",
+      "metrics": {
+        "totalCasesThisMonth": "Total des cas (ce mois-ci)",
+        "approvalRate": "Taux d’approbation",
+        "avgReviewTime": "Temps de révision moyen",
+        "rejectionRate": "Taux de rejet"
+      }
     }
   },
   "charts": {
@@ -32,5 +247,25 @@
       "rosacea": "Rosacée",
       "other": "Autre"
     }
+  },
+  "doctor": {
+    "nav": {
+      "overview": "Aperçu",
+      "pendingApprovals": "Approbations en attente",
+      "approvedCases": "Cas approuvés",
+      "rejectedCases": "Cas rejetés"
+    }
+  },
+  "errors": {
+    "noAccessTitle": "Accès refusé",
+    "noAccessBody": "Vous n’avez pas la permission de consulter cette page. Passez au compte correct ou revenez à une zone autorisée.",
+    "returnToLogin": "Retour à la connexion",
+    "somethingWentWrong": "Une erreur est survenue",
+    "routeErrorBody": "Nous n’avons pas pu terminer cette action. Veuillez réessayer. Si cela persiste, actualisez la page et contactez le support avec cette référence : {digest}.",
+    "tryAgain": "Réessayer",
+    "goHome": "Retour à l’accueil",
+    "applicationErrorTitle": "Erreur de l’application",
+    "applicationErrorBody": "L’application a rencontré une erreur inattendue. Réessayez. Si le problème persiste, contactez le support avec cette référence : {digest}.",
+    "reloadAppState": "Recharger l’état de l’application"
   }
 }

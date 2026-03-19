@@ -4,6 +4,9 @@ import { ArrowLeft, Briefcase, Calendar, CheckCircle2, Clock, FileText, Mail, Ma
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useMemo } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import {
     Table,
     TableBody,
@@ -84,15 +87,70 @@ const defaultCases: RecentCase[] = [
 ]
 
 const statusConfig = {
-    approved: { label: 'Approved', color: 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]' },
-    pending: { label: 'Pending', color: 'text-[#93370D] bg-[#FEF3C6] border-[#FEE685]' },
-    rejected: { label: 'Rejected', color: 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]' },
+    approved: { label: 'Approved', color: 'text-success bg-success-bg border-success-border' },
+    pending: { label: 'Pending', color: 'text-warning-text-alt bg-warning-bg border-warning-border' },
+    rejected: { label: 'Rejected', color: 'text-error-text-alt bg-error-bg-alt border-error-soft-border' },
 }
 
 const Page = () => {
     const params = useParams()
     const doctorId = params.id as string
     const doctor = doctorsMap[doctorId]
+    const cases = recentCasesMap[doctorId] || defaultCases
+
+    const columns = useMemo<ColumnDef<RecentCase>[]>(
+        () => [
+            {
+                accessorKey: "id",
+                header: "Case",
+                cell: ({ row }) => (
+                    <Link href="/admin/case-review" className="text-sm font-medium text-pry hover:underline">
+                        {row.original.id}
+                    </Link>
+                ),
+            },
+            { accessorKey: "patient", header: "Patient" },
+            { accessorKey: "condition", header: "Condition" },
+            {
+                accessorKey: "confidence",
+                header: "AI Conf.",
+                cell: ({ row }) => (
+                    <span
+                        className={`text-sm font-medium ${
+                            row.original.confidence >= 90
+                                ? "text-success-accent"
+                                : row.original.confidence >= 80
+                                  ? "text-warning-dot"
+                                  : "text-error-accent"
+                        }`}
+                    >
+                        {row.original.confidence}%
+                    </span>
+                ),
+            },
+            {
+                accessorKey: "status",
+                header: "Status",
+                cell: ({ row }) => {
+                    const sc = statusConfig[row.original.status]
+                    return (
+                        <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${sc.color}`}>
+                            {sc.label}
+                        </span>
+                    )
+                },
+            },
+            { accessorKey: "date", header: "Date" },
+        ],
+        [],
+    )
+
+    const table = useReactTable<RecentCase>({
+        data: cases,
+        columns,
+        getRowId: (row) => row.id,
+        getCoreRowModel: getCoreRowModel(),
+    })
 
     if (!doctor) {
         return (
@@ -108,14 +166,13 @@ const Page = () => {
         )
     }
 
-    const cases = recentCasesMap[doctorId] || defaultCases
     const approvalRate = doctor.totalCases > 0 ? Math.round((doctor.approved / doctor.totalCases) * 100) : 0
 
     const stats = [
-        { label: 'Total Cases', value: doctor.totalCases, icon: FileText, color: 'text-gray-700', bg: 'bg-[#F5F5F0]' },
-        { label: 'Approved', value: doctor.approved, icon: CheckCircle2, color: 'text-[#17B26A]', bg: 'bg-[#ECFDF3]' },
-        { label: 'Pending', value: doctor.pending, icon: Clock, color: 'text-[#F79009]', bg: 'bg-[#FFFAEB]' },
-        { label: 'Rejected', value: doctor.rejected, icon: XCircle, color: 'text-[#F04438]', bg: 'bg-[#FEF3F2]' },
+        { label: 'Total Cases', value: doctor.totalCases, icon: FileText, color: 'text-gray-700', bg: 'bg-surface-muted' },
+        { label: 'Approved', value: doctor.approved, icon: CheckCircle2, color: 'text-success-accent', bg: 'bg-success-pale' },
+        { label: 'Pending', value: doctor.pending, icon: Clock, color: 'text-warning-dot', bg: 'bg-warning-bg-light' },
+        { label: 'Rejected', value: doctor.rejected, icon: XCircle, color: 'text-error-accent', bg: 'bg-error-bg-light' },
     ]
 
     return (
@@ -123,16 +180,16 @@ const Page = () => {
             <div className="container mx-auto mb-20">
                 <AdminHeader />
 
-                <Link href="/admin/doctors" className="mb-6 w-fit flex items-center text-sm gap-2 rounded-full py-2 px-4 bg-[#EDEBE3] hover:bg-[#E0DED6] transition-colors">
+                <Link href="/admin/doctors" className="mb-6 w-fit flex items-center text-sm gap-2 rounded-full py-2 px-4 bg-sec hover:bg-sec-hover transition-colors">
                     <ArrowLeft size={16} />
                     Back to Doctors
                 </Link>
 
                 {/* Profile Header */}
-                <div className="border border-[#EDEBE3] rounded-2xl p-6 md:p-8 mt-4">
+                <div className="border border-sec rounded-2xl p-6 md:p-8 mt-4">
                     <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
                         <div className="flex gap-5 items-center">
-                            <div className="size-20 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                            <div className="size-20 rounded-full overflow-hidden bg-sec shrink-0">
                                 <Image src={doctor.image} width={80} height={80} alt={doctor.name} className="size-20 object-cover rounded-full" />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -140,10 +197,10 @@ const Page = () => {
                                     <h1 className="text-2xl font-semibold text-gray-900">Dr. {doctor.name}</h1>
                                     <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border ${
                                         doctor.status === 'active'
-                                            ? 'text-[#016630] bg-[#DCFCE7] border-[#B9F8CF]'
-                                            : 'text-[#9B1C1C] bg-[#FEE2E2] border-[#FECACA]'
+                                            ? 'text-success bg-success-bg border-success-border'
+                                            : 'text-error-text-alt bg-error-bg-alt border-error-soft-border'
                                     }`}>
-                                        <span className={`size-1.5 rounded-full mr-1.5 ${doctor.status === 'active' ? 'bg-[#17B26A]' : 'bg-[#F04438]'}`} />
+                                        <span className={`size-1.5 rounded-full mr-1.5 ${doctor.status === 'active' ? 'bg-success-accent' : 'bg-error-accent'}`} />
                                         {doctor.status === 'active' ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
@@ -178,11 +235,11 @@ const Page = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
                     {/* Contact Info */}
-                    <div className="border border-[#EDEBE3] rounded-2xl p-6 flex flex-col gap-5 lg:col-span-1">
+                    <div className="border border-sec rounded-2xl p-6 flex flex-col gap-5 lg:col-span-1">
                         <h3 className="text-base font-semibold text-gray-900">Contact Information</h3>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Mail size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
@@ -191,7 +248,7 @@ const Page = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Phone size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
@@ -200,7 +257,7 @@ const Page = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <MapPin size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
@@ -209,7 +266,7 @@ const Page = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Briefcase size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
@@ -218,7 +275,7 @@ const Page = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Shield size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
@@ -227,7 +284,7 @@ const Page = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="size-9 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0">
+                                <div className="size-9 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
                                     <Calendar size={16} className="text-gray-500" />
                                 </div>
                                 <div className="flex flex-col">
@@ -239,14 +296,14 @@ const Page = () => {
                     </div>
 
                     {/* Recent Cases */}
-                    <div className="border border-[#EDEBE3] rounded-2xl overflow-hidden lg:col-span-2">
-                        <div className="px-6 py-5 border-b border-[#EDEBE3]">
+                    <div className="border border-sec rounded-2xl overflow-hidden lg:col-span-2">
+                        <div className="px-6 py-5 border-b border-sec">
                             <h3 className="text-base font-semibold text-gray-900">Recent Cases</h3>
                             <p className="text-xs text-gray-400 mt-0.5">Latest patient cases assigned to this doctor</p>
                         </div>
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-[#FAFAF8] hover:bg-[#FAFAF8]">
+                                <TableRow className="bg-surface-variant hover:bg-surface-variant">
                                     <TableHead className="pl-6 font-medium text-xs text-gray-500 uppercase tracking-wider">Case</TableHead>
                                     <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider">Patient</TableHead>
                                     <TableHead className="font-medium text-xs text-gray-500 uppercase tracking-wider hidden md:table-cell">Condition</TableHead>
@@ -256,17 +313,18 @@ const Page = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {cases.map((c) => {
+                                {table.getRowModel().rows.map((row) => {
+                                    const c = row.original
                                     const sc = statusConfig[c.status]
                                     return (
-                                        <TableRow key={c.id} className="hover:bg-[#FAFAF8]">
+                                        <TableRow key={c.id} className="hover:bg-surface-variant">
                                             <TableCell className="pl-6">
                                                 <Link href="/admin/case-review" className="text-sm font-medium text-pry hover:underline">{c.id}</Link>
                                             </TableCell>
                                             <TableCell><span className="text-sm text-gray-700">{c.patient}</span></TableCell>
                                             <TableCell className="hidden md:table-cell"><span className="text-sm text-gray-500">{c.condition}</span></TableCell>
                                             <TableCell className="text-center hidden md:table-cell">
-                                                <span className={`text-sm font-medium ${c.confidence >= 90 ? 'text-[#17B26A]' : c.confidence >= 80 ? 'text-[#F79009]' : 'text-[#F04438]'}`}>
+                                                <span className={`text-sm font-medium ${c.confidence >= 90 ? 'text-success-accent' : c.confidence >= 80 ? 'text-warning-dot' : 'text-error-accent'}`}>
                                                     {c.confidence}%
                                                 </span>
                                             </TableCell>

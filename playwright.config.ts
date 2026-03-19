@@ -23,5 +23,16 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
+    {
+      name: "edge",
+      use: {
+        ...devices["Desktop Edge"],
+        channel: "msedge",
+      },
+    },
   ],
 })

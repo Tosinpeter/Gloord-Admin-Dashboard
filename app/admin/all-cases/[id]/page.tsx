@@ -115,9 +115,9 @@ const defaultCase: CaseDetail = {
 }
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-    approved: { label: 'Approved', color: 'text-[#016630]', bg: 'bg-[#DCFCE7] border-[#B9F8CF]', dot: 'bg-[#17B26A]' },
-    pending: { label: 'Pending Review', color: 'text-[#93370D]', bg: 'bg-[#FEF3C6] border-[#FEE685]', dot: 'bg-[#F79009]' },
-    rejected: { label: 'Rejected', color: 'text-[#9B1C1C]', bg: 'bg-[#FEE2E2] border-[#FECACA]', dot: 'bg-[#F04438]' },
+    approved: { label: 'Approved', color: 'text-success', bg: 'bg-success-bg border-success-border', dot: 'bg-success-accent' },
+    pending: { label: 'Pending Review', color: 'text-warning-text-alt', bg: 'bg-warning-bg border-warning-border', dot: 'bg-warning-dot' },
+    rejected: { label: 'Rejected', color: 'text-error-text-alt', bg: 'bg-error-bg-alt border-error-soft-border', dot: 'bg-error-accent' },
 }
 
 const Page = () => {
@@ -146,19 +146,19 @@ const Page = () => {
             <div className="container mx-auto mb-20">
                 <AdminHeader />
 
-                <Link href="/admin/all-cases" className="mb-6 w-fit flex items-center text-sm gap-2 rounded-full py-2 px-4 bg-[#EDEBE3] hover:bg-[#E0DED6] transition-colors">
+                <Link href="/admin/all-cases" className="mb-6 w-fit flex items-center text-sm gap-2 rounded-full py-2 px-4 bg-sec hover:bg-sec-hover transition-colors">
                     <ArrowLeft size={16} />
                     Back to All Cases
                 </Link>
 
                 {/* Case Header */}
-                <div className="border border-[#EDEBE3] rounded-2xl p-6 md:p-8 mt-4">
+                <div className="border border-sec rounded-2xl p-6 md:p-8 mt-4">
                     <div className="flex flex-col md:flex-row gap-6 md:items-start justify-between">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-3 flex-wrap">
                                 <h1 className="text-2xl font-semibold text-gray-900">Case {caseData.caseId}</h1>
                                 <span className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-medium border ${sc.bg} ${sc.color}`}>
-                                    <span className={`size-1.5 rounded-full mr-1.5 ${sc.dot}`} />
+                                <span className={`size-1.5 rounded-full mr-1.5 ${sc.dot}`} />
                                     {sc.label}
                                 </span>
                             </div>
@@ -171,7 +171,7 @@ const Page = () => {
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
                             <div className="text-right">
-                                <p className={`text-3xl font-bold ${caseData.confidence >= 90 ? 'text-[#17B26A]' : caseData.confidence >= 80 ? 'text-[#F79009]' : 'text-[#F04438]'}`}>
+                                <p className={`text-3xl font-bold ${caseData.confidence >= 90 ? 'text-success-accent' : caseData.confidence >= 80 ? 'text-warning-dot' : 'text-error-accent'}`}>
                                     {caseData.confidence}%
                                 </p>
                                 <p className="text-xs text-gray-400">AI Confidence</p>
@@ -184,13 +184,13 @@ const Page = () => {
                 {/* Info Cards Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     {/* Patient Card */}
-                    <div className="border border-[#EDEBE3] rounded-2xl p-6">
+                    <div className="border border-sec rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <User size={16} className="text-gray-500" />
                             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Patient</h3>
                         </div>
                         <Link href={`/admin/patients/${caseData.patientId}`} className="flex items-center gap-4 group">
-                            <div className="size-12 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                            <div className="size-12 rounded-full overflow-hidden bg-sec shrink-0">
                                 <Image src={caseData.image} width={48} height={48} alt={caseData.patientName} className="size-12 object-cover rounded-full" />
                             </div>
                             <div className="flex flex-col gap-0.5">
@@ -201,13 +201,13 @@ const Page = () => {
                     </div>
 
                     {/* Doctor Card */}
-                    <div className="border border-[#EDEBE3] rounded-2xl p-6">
+                    <div className="border border-sec rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Stethoscope size={16} className="text-gray-500" />
                             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Assigned Doctor</h3>
                         </div>
                         <Link href={`/admin/doctors/${caseData.doctorId}`} className="flex items-center gap-4 group">
-                            <div className="size-12 rounded-full overflow-hidden bg-[#EDEBE3] shrink-0">
+                            <div className="size-12 rounded-full overflow-hidden bg-sec shrink-0">
                                 <Image src={caseData.image} width={48} height={48} alt={caseData.doctorName} className="size-12 object-cover rounded-full" />
                             </div>
                             <div className="flex flex-col gap-0.5">
@@ -220,7 +220,7 @@ const Page = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
                     {/* Timeline */}
-                    <div className="border border-[#EDEBE3] rounded-2xl p-6 lg:col-span-1">
+                    <div className="border border-sec rounded-2xl p-6 lg:col-span-1">
                         <div className="flex items-center gap-2 mb-5">
                             <Clock size={16} className="text-gray-500" />
                             <h3 className="text-base font-semibold text-gray-900">Timeline</h3>
@@ -229,8 +229,8 @@ const Page = () => {
                             {caseData.timeline.map((event, i) => (
                                 <div key={i} className="flex gap-4">
                                     <div className="flex flex-col items-center">
-                                        <div className={`size-3 rounded-full mt-1.5 shrink-0 ${i === caseData.timeline.length - 1 ? 'bg-pry' : 'bg-[#EDEBE3]'}`} />
-                                        {i < caseData.timeline.length - 1 && <div className="w-px flex-1 bg-[#EDEBE3] my-1" />}
+                                        <div className={`size-3 rounded-full mt-1.5 shrink-0 ${i === caseData.timeline.length - 1 ? 'bg-pry' : 'bg-sec'}`} />
+                                        {i < caseData.timeline.length - 1 && <div className="w-px flex-1 bg-sec my-1" />}
                                     </div>
                                     <div className="pb-5">
                                         <p className="text-sm text-gray-700 font-medium">{event.event}</p>
@@ -244,7 +244,7 @@ const Page = () => {
                     {/* AI Analysis + Treatment */}
                     <div className="flex flex-col gap-6 lg:col-span-2">
                         {/* AI Findings */}
-                        <div className="border border-[#EDEBE3] rounded-2xl p-6">
+                        <div className="border border-sec rounded-2xl p-6">
                             <div className="flex items-center gap-2 mb-5">
                                 <Brain size={16} className="text-gray-500" />
                                 <h3 className="text-base font-semibold text-gray-900">AI Skin Analysis Findings</h3>
@@ -252,7 +252,7 @@ const Page = () => {
                             <div className="flex flex-col gap-3">
                                 {caseData.aiFindings.map((finding, i) => (
                                     <div key={i} className="flex items-start gap-3">
-                                        <div className="size-6 rounded-full bg-[#F5F5F0] flex items-center justify-center shrink-0 mt-0.5">
+                                        <div className="size-6 rounded-full bg-surface-muted flex items-center justify-center shrink-0 mt-0.5">
                                             <span className="text-xs font-medium text-gray-500">{i + 1}</span>
                                         </div>
                                         <p className="text-sm text-gray-700">{finding}</p>
@@ -262,7 +262,7 @@ const Page = () => {
                         </div>
 
                         {/* Recommended Treatment */}
-                        <div className="border border-[#EDEBE3] rounded-2xl p-6">
+                        <div className="border border-sec rounded-2xl p-6">
                             <div className="flex items-center gap-2 mb-5">
                                 <FileText size={16} className="text-gray-500" />
                                 <h3 className="text-base font-semibold text-gray-900">Recommended Treatment Plan</h3>
@@ -271,14 +271,14 @@ const Page = () => {
                                 {caseData.recommendedTreatment.map((step, i) => (
                                     <div key={i} className="flex items-start gap-3">
                                         <div className={`size-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                                            caseData.status === 'approved' ? 'bg-[#ECFDF3]' : caseData.status === 'rejected' ? 'bg-[#FEF3F2]' : 'bg-[#FFFAEB]'
+                                            caseData.status === 'approved' ? 'bg-success-pale' : caseData.status === 'rejected' ? 'bg-error-bg-light' : 'bg-warning-bg-light'
                                         }`}>
                                             {caseData.status === 'approved' ? (
-                                                <CheckCircle2 size={14} className="text-[#17B26A]" />
+                                                <CheckCircle2 size={14} className="text-success-accent" />
                                             ) : caseData.status === 'rejected' ? (
-                                                <XCircle size={14} className="text-[#F04438]" />
+                                                <XCircle size={14} className="text-error-accent" />
                                             ) : (
-                                                <Clock size={14} className="text-[#F79009]" />
+                                                <Clock size={14} className="text-warning-dot" />
                                             )}
                                         </div>
                                         <p className="text-sm text-gray-700">{step}</p>

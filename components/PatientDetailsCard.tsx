@@ -38,7 +38,7 @@ const PatientDetailsCard = ({
             id: "P-45123",
             date: "Jan 24, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Acne and hyperpigmentation on cheeks and forehead",
             image: patientimage
         },
@@ -46,7 +46,7 @@ const PatientDetailsCard = ({
             id: "P-67890",
             date: "Jan 25, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Rosacea with redness and visible blood vessels",
             image: patientimage
         },
@@ -54,7 +54,7 @@ const PatientDetailsCard = ({
             id: "P-54321",
             date: "Jan 26, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Eczema flare-up on arms and neck",
             image: patientimage
         },
@@ -62,7 +62,7 @@ const PatientDetailsCard = ({
             id: "P-98765",
             date: "Jan 27, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Psoriasis patches on elbows and knees",
             image: patientimage
         },
@@ -70,7 +70,7 @@ const PatientDetailsCard = ({
             id: "P-11223",
             date: "Jan 28, 2026",
             status: "Pending",
-            statusClass: "bg-[#FEF3C6] border-[#FEE685] text-pry",
+            statusClass: "bg-warning-bg border-warning-border text-pry",
             skinConcern: "Melasma on forehead and upper lip",
             image: patientimage
         },
@@ -78,7 +78,7 @@ const PatientDetailsCard = ({
             id: "P-44556",
             date: "Jan 29, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Contact dermatitis from new skincare product",
             image: patientimage
         }

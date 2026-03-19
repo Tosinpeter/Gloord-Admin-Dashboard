@@ -28,7 +28,7 @@ const ApprovedPatientCard = ({
             id: "P-45123",
             date: "Jan 24, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Acne and hyperpigmentation on cheeks and forehead",
             image: patientimage
         },
@@ -36,7 +36,7 @@ const ApprovedPatientCard = ({
             id: "P-78901",
             date: "Jan 25, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Mild rosacea with occasional redness",
             image: patientimage
         },
@@ -44,7 +44,7 @@ const ApprovedPatientCard = ({
             id: "P-23456",
             date: "Jan 26, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Eczema on hands and wrists",
             image: patientimage
         },
@@ -52,7 +52,7 @@ const ApprovedPatientCard = ({
             id: "P-67890",
             date: "Jan 27, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Melasma treatment with hydroquinone",
             image: patientimage
         },
@@ -60,7 +60,7 @@ const ApprovedPatientCard = ({
             id: "P-34567",
             date: "Jan 28, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Contact dermatitis from nickel jewelry",
             image: patientimage
         },
@@ -68,7 +68,7 @@ const ApprovedPatientCard = ({
             id: "P-89012",
             date: "Jan 29, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Post-inflammatory hyperpigmentation",
             image: patientimage
         },
@@ -76,7 +76,7 @@ const ApprovedPatientCard = ({
             id: "P-45678",
             date: "Jan 30, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Seborrheic keratosis removal",
             image: patientimage
         },
@@ -84,7 +84,7 @@ const ApprovedPatientCard = ({
             id: "P-90123",
             date: "Feb 1, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Actinic keratosis on forearms",
             image: patientimage
         },
@@ -92,7 +92,7 @@ const ApprovedPatientCard = ({
             id: "P-56789",
             date: "Feb 2, 2026",
             status: "Approved",
-            statusClass: "bg-[#DCFCE7] border-[#B9F8CF] text-[#016630]",
+            statusClass: "bg-success-bg border-success-border text-success",
             skinConcern: "Fungal infection on feet",
             image: patientimage
         }

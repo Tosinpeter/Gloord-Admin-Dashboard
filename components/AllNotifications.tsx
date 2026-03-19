@@ -41,11 +41,11 @@ const initialNotifications: Notification[] = [
         id: 1,
         icon: "CircleAlert",
         iconColor: "text-pry",
-        bgColor: "bg-[#CF604A0D]",
+        bgColor: "bg-pry-soft",
         title: "Urgent Case Assigned",
         badges: [
             { text: "New", bgColor: "bg-pry", textColor: "text-white" },
-            { text: "Urgent", bgColor: "bg-white", textColor: "text-pry", borderColor: "border-[#FFA2A2]" }
+            { text: "Urgent", bgColor: "bg-white", textColor: "text-pry", borderColor: "border-error-border-soft" }
         ],
         message: "High-priority case C010 for Kevin Zhang requires immediate review. Patient has severe eczema flare-ups.",
         timestamp: "2 hours ago",
@@ -58,7 +58,7 @@ const initialNotifications: Notification[] = [
         id: 2,
         icon: "FileText",
         iconColor: "text-pry",
-        bgColor: "bg-[#CF604A0D]",
+        bgColor: "bg-pry-soft",
         title: "New Case Assigned",
         badges: [
             { text: "New", bgColor: "bg-pry", textColor: "text-white" }
@@ -73,8 +73,8 @@ const initialNotifications: Notification[] = [
     {
         id: 3,
         icon: "CircleCheckBig",
-        iconColor: "text-[#17B26A]",
-        bgColor: "bg-[#ffffff]",
+        iconColor: "text-success-accent",
+        bgColor: "bg-white",
         title: "Treatment Plan Approved",
         badges: [],
         message: "The dashboard will undergo scheduled maintenance on Feb 5, 2026 from 2:00 AM to 4:00 AM EST.",
@@ -86,7 +86,7 @@ const initialNotifications: Notification[] = [
         id: 4,
         icon: "Bell",
         iconColor: "",
-        bgColor: "bg-[#ffffff]",
+        bgColor: "bg-white",
         title: "Treatment Plan Approved",
         badges: [],
         message: "Your treatment plan for Case C003 (Emily Thompson) has been successfully approved and activated.",
@@ -98,7 +98,7 @@ const initialNotifications: Notification[] = [
         id: 5,
         icon: "FileText",
         iconColor: "text-pry",
-        bgColor: "bg-[#ffffff]",
+        bgColor: "bg-white",
         title: "New Case Assigned",
         badges: [],
         message: "Case C008 for Robert Lee has been assigned to you. Concern: Oily skin with enlarged pores and blackheads.",
@@ -109,8 +109,8 @@ const initialNotifications: Notification[] = [
     {
         id: 6,
         icon: "Users",
-        iconColor: "text-[#7B988A]",
-        bgColor: "bg-[#ffffff]",
+        iconColor: "text-muted-green",
+        bgColor: "bg-white",
         title: "Treatment Plan Approved",
         badges: [],
         message: "Dr. Amanda White has joined the team. Specialty: Cosmetic Dermatology.",
@@ -133,7 +133,7 @@ const AllNotifications = () => {
         setNotifications(prev =>
             prev.map(n =>
                 n.id === id
-                    ? { ...n, showActions: false, badges: [], bgColor: 'bg-[#ffffff]' }
+                    ? { ...n, showActions: false, badges: [], bgColor: 'bg-white' }
                     : n
             )
         )
@@ -156,7 +156,7 @@ const AllNotifications = () => {
                 return (
                     <div
                         key={notification.id}
-                        className={`flex items-start gap-2 md:gap-4 w-full p-4 md:p-6 ${notification.bgColor} border border-[#EDEBE3] rounded-[14px] transition-all duration-200`}
+                        className={`flex items-start gap-2 md:gap-4 w-full p-4 md:p-6 ${notification.bgColor} border border-sec rounded-[14px] transition-all duration-200`}
                     >
                         {IconComponent && <IconComponent size={20} className={notification.iconColor} />}
                         <div className="w-full flex-1 flex flex-col gap-2">
@@ -177,11 +177,11 @@ const AllNotifications = () => {
                                     )}
                                 </div>
                                 {notification.showActions && (
-                                    <div className="text-[#20201E99] flex gap-4 md:gap-6 w-max">
+                                    <div className="text-tet-99 flex gap-4 md:gap-6 w-max">
                                         <button
                                             type="button"
                                             onClick={() => handleMarkRead(notification.id)}
-                                            className="hover:text-[#17B26A] transition-colors"
+                                            className="hover:text-success-accent transition-colors"
                                             title="Mark as read"
                                         >
                                             <Check size={20} />
@@ -206,7 +206,7 @@ const AllNotifications = () => {
                                 {notification.showButton && (
                                     <Link
                                         href={`${basePath}/case-review`}
-                                        className='text-white bg-pry rounded-full py-2 px-4 w-max font-medium text-xs leading-[100%] border border-[#FFA2A2] hover:opacity-90 transition-opacity'
+                                        className='text-white bg-pry rounded-full py-2 px-4 w-max font-medium text-xs leading-[100%] border border-error-border-soft hover:opacity-90 transition-opacity'
                                     >
                                         {notification.buttonText}
                                     </Link>

@@ -28,7 +28,7 @@ const RejectedPatientCard = ({
             id: "P-45123",
             date: "Jan 24, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Acne and hyperpigmentation on cheeks and forehead",
             image: patientimage
         },
@@ -36,7 +36,7 @@ const RejectedPatientCard = ({
             id: "P-78901",
             date: "Jan 25, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Severe cystic acne requiring different treatment",
             image: patientimage
         },
@@ -44,7 +44,7 @@ const RejectedPatientCard = ({
             id: "P-23456",
             date: "Jan 26, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Incomplete medical history provided",
             image: patientimage
         },
@@ -52,7 +52,7 @@ const RejectedPatientCard = ({
             id: "P-67890",
             date: "Jan 27, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Treatment plan incompatible with current medications",
             image: patientimage
         },
@@ -60,7 +60,7 @@ const RejectedPatientCard = ({
             id: "P-34567",
             date: "Jan 28, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Allergic reaction to proposed ingredients",
             image: patientimage
         },
@@ -68,7 +68,7 @@ const RejectedPatientCard = ({
             id: "P-89012",
             date: "Jan 29, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Duplicate submission - already has active treatment",
             image: patientimage
         },
@@ -76,7 +76,7 @@ const RejectedPatientCard = ({
             id: "P-45678",
             date: "Jan 30, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Insurance coverage not verified",
             image: patientimage
         },
@@ -84,7 +84,7 @@ const RejectedPatientCard = ({
             id: "P-90123",
             date: "Feb 1, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Required lab work not completed",
             image: patientimage
         },
@@ -92,7 +92,7 @@ const RejectedPatientCard = ({
             id: "P-56789",
             date: "Feb 2, 2026",
             status: "Rejected",
-            statusClass: "bg-[#FFE2E2] border-[#FFC9C9] text-[#9F0712]",
+            statusClass: "bg-error-bg border-error-border text-error",
             skinConcern: "Outside scope of practice - requires specialist referral",
             image: patientimage
         }

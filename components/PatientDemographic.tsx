@@ -32,7 +32,7 @@ export default function PatientDemographic() {
                         {/* Progress bar */}
                         <div className="h-3 w-full rounded-full bg-slate-100">
                             <div
-                                className="h-3 rounded-full bg-[#D2644D]"
+                                className="h-3 rounded-full bg-chart-accent"
                                 style={{ width: `${item.value}%` }}
                             />
                         </div>

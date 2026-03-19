@@ -17,24 +17,24 @@ const page = () => {
                 <AnalyticsHero />
                 <div className="flex flex-col gap-6">
                     <div className="mt-6 flex flex-col md:flex-row gap-6">
-                        <div className="max-w-[737px] w-full py-5 px-4 border border-[#EDEBE3] rounded-xl">
+                        <div className="max-w-[737px] w-full py-5 px-4 border border-sec rounded-xl">
                             <MonthlyCasesTrend />
                         </div>
-                        <div className="flex-1 w-full py-5 px-4 border border-[#EDEBE3] rounded-xl">
+                        <div className="flex-1 w-full py-5 px-4 border border-sec rounded-xl">
                             <SkinConcernsDistribution />
                         </div>
                     </div>
-                    <div className="w-full py-5 px-4 border border-[#EDEBE3] rounded-xl">
+                    <div className="w-full py-5 px-4 border border-sec rounded-xl">
                         <DoctorPerformanceComparison />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="w-full py-5 px-4 border border-[#EDEBE3] rounded-xl">
+                        <div className="w-full py-5 px-4 border border-sec rounded-xl">
                             <PeakHours />
                         </div>
-                        <div className="w-full py-5 px-4 border border-[#EDEBE3] rounded-xl">
+                        <div className="w-full py-5 px-4 border border-sec rounded-xl">
                             <TopProductsRecommended />
                         </div>
-                        <div className="w-full py-5 px-4 border border-[#EDEBE3] rounded-xl">
+                        <div className="w-full py-5 px-4 border border-sec rounded-xl">
                             <PatientDemographic />
                         </div>
 

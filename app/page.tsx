@@ -9,10 +9,9 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { AppRole } from "@/lib/rbac";
 
-type LoginErrors = {
-  email?: string
-  password?: string
-}
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 export default function Home() {
   const t = useTranslations("login");
@@ -22,11 +21,24 @@ export default function Home() {
   });
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [isSubmittingRole, setIsSubmittingRole] = useState<AppRole | null>(null);
-  const [loginErrors, setLoginErrors] = useState<Record<AppRole, LoginErrors>>({
-    doctor: {},
-    admin: {},
-  });
   const router = useRouter();
+
+  const loginSchema = z.object({
+    email: z.string().trim().email("Enter a valid email address."),
+    password: z.string().trim().min(6, "Password must be at least 6 characters."),
+  })
+
+  const doctorForm = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+    mode: "onSubmit",
+  })
+
+  const adminForm = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+    mode: "onSubmit",
+  })
 
   // Define hero slides with their content
   const heroSlides = [
@@ -65,38 +77,23 @@ export default function Home() {
     }));
   };
 
-  // Also add type for the role parameter in handleSubmit
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>, role: AppRole) => {
-    e.preventDefault();
-    if (isSubmittingRole) return;
+  const onDoctorSubmit = doctorForm.handleSubmit((values) => {
+    if (isSubmittingRole) return
+    void values
+    setIsSubmittingRole('doctor')
+    // eslint-disable-next-line react-hooks/immutability
+    document.cookie = `APP_ROLE=doctor; Path=/; SameSite=Lax`;
+    router.push('/doctor/overview');
+  })
 
-    const formData = new FormData(e.currentTarget);
-    const email = String(formData.get(`${role}-email`) ?? "").trim();
-    const password = String(formData.get(`${role}-password`) ?? "").trim();
-    const nextErrors: LoginErrors = {};
-
-    if (!email) nextErrors.email = "Email is required."
-    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Enter a valid email address."
-
-    if (!password) nextErrors.password = "Password is required."
-    else if (password.length < 6) nextErrors.password = "Password must be at least 6 characters."
-
-    setLoginErrors((prev) => ({ ...prev, [role]: nextErrors }));
-    if (Object.keys(nextErrors).length > 0) {
-      console.error(`Login validation failed for ${role}`, nextErrors)
-      return;
-    }
-
-    setIsSubmittingRole(role);
-    document.cookie = `APP_ROLE=${role}; Path=/; SameSite=Lax`;
-
-    // Redirect based on role
-    if (role === 'doctor') {
-      router.push('/doctor/overview');
-    } else if (role === 'admin') {
-      router.push('/admin/overview');
-    }
-  };
+  const onAdminSubmit = adminForm.handleSubmit((values) => {
+    if (isSubmittingRole) return
+    void values
+    setIsSubmittingRole('admin')
+    // eslint-disable-next-line react-hooks/immutability
+    document.cookie = `APP_ROLE=admin; Path=/; SameSite=Lax`;
+    router.push('/admin/overview');
+  })
 
   const goToPreviousHero = () => {
     setCurrentHeroIndex((prev) =>
@@ -134,23 +131,19 @@ export default function Home() {
                   <TabsTrigger value="admin">{t("adminOwner")}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="doctor">
-                  <form onSubmit={(e) => handleSubmit(e, 'doctor')} className="flex flex-col gap-4">
+                  <form onSubmit={onDoctorSubmit} className="flex flex-col gap-4">
                     <label htmlFor="doctor-email" className="flex flex-col gap-3">
                       <span className="font-normal text-base">{t("email")}</span>
                       <input
                         type="email"
                         id="doctor-email"
-                        name="doctor-email"
+                        {...doctorForm.register("email")}
                         placeholder={t("emailPlaceholder")}
-                        className="px-5 placeholder:text-[#344054] placeholder:font-normal h-[48px] w-full bg-sec border-none rounded-md focus:outline-none"
-                        required
-                        aria-invalid={!!loginErrors.doctor.email}
-                        onChange={() =>
-                          setLoginErrors((prev) => ({ ...prev, doctor: { ...prev.doctor, email: undefined } }))
-                        }
+                        className="px-5 placeholder-form-muted placeholder:font-normal h-[48px] w-full bg-sec border-none rounded-md focus:outline-none"
+                        aria-invalid={!!doctorForm.formState.errors.email}
                       />
-                      {loginErrors.doctor.email && (
-                        <span className="text-sm text-[#B91C1C]">{loginErrors.doctor.email}</span>
+                      {doctorForm.formState.errors.email && (
+                        <span className="text-sm text-error-text">{doctorForm.formState.errors.email.message}</span>
                       )}
                     </label>
                     <label htmlFor="doctor-password" className="flex flex-col gap-3">
@@ -159,24 +152,23 @@ export default function Home() {
                         <input
                           type={showPassword.doctor ? "text" : "password"}
                           id="doctor-password"
-                          name="doctor-password"
+                          {...doctorForm.register("password")}
                           placeholder="********"
-                          className="bg-transparent w-full h-full placeholder:text-[#344054] placeholder:font-normal border-none focus:outline-none"
-                          required
-                          aria-invalid={!!loginErrors.doctor.password}
-                          onChange={() =>
-                            setLoginErrors((prev) => ({ ...prev, doctor: { ...prev.doctor, password: undefined } }))
-                          }
+                          className="bg-transparent w-full h-full placeholder-form-muted placeholder:font-normal border-none focus:outline-none"
+                          aria-invalid={!!doctorForm.formState.errors.password}
                         />
                         <button
                           type="button"
                           onClick={() => togglePasswordVisibility('doctor')}
-                          className="w-12 flex items-center justify-center bg-transparent text-[#344054] focus:outline-none"
+                          className="w-12 flex items-center justify-center bg-transparent text-form-muted focus:outline-none"
                         >
                           {showPassword.doctor ? <Eye size={20} /> : <EyeOff size={20} />}
                         </button>
                       </div>
                     </label>
+                    {doctorForm.formState.errors.password && (
+                      <p className="text-sm text-error-text">{doctorForm.formState.errors.password.message}</p>
+                    )}
                     <div className="mt-4">
                       <button
                         type="submit"
@@ -186,29 +178,22 @@ export default function Home() {
                         {isSubmittingRole === "doctor" ? "Signing in..." : t("signIn")}
                       </button>
                     </div>
-                    {loginErrors.doctor.password && (
-                      <p className="text-sm text-[#B91C1C]">{loginErrors.doctor.password}</p>
-                    )}
                   </form>
                 </TabsContent>
                 <TabsContent value="admin">
-                  <form onSubmit={(e) => handleSubmit(e, 'admin')} className="flex flex-col gap-4">
+                  <form onSubmit={onAdminSubmit} className="flex flex-col gap-4">
                     <label htmlFor="admin-email" className="flex flex-col gap-3">
                       <span className="font-normal text-base">{t("email")}</span>
                       <input
                         type="email"
                         id="admin-email"
-                        name="admin-email"
+                        {...adminForm.register("email")}
                         placeholder={t("emailPlaceholder")}
-                        className="px-5 placeholder:text-[#344054] placeholder:font-normal h-[48px] w-full bg-sec border-none rounded-md focus:outline-none"
-                        required
-                        aria-invalid={!!loginErrors.admin.email}
-                        onChange={() =>
-                          setLoginErrors((prev) => ({ ...prev, admin: { ...prev.admin, email: undefined } }))
-                        }
+                        className="px-5 placeholder-form-muted placeholder:font-normal h-[48px] w-full bg-sec border-none rounded-md focus:outline-none"
+                        aria-invalid={!!adminForm.formState.errors.email}
                       />
-                      {loginErrors.admin.email && (
-                        <span className="text-sm text-[#B91C1C]">{loginErrors.admin.email}</span>
+                      {adminForm.formState.errors.email && (
+                        <span className="text-sm text-error-text">{adminForm.formState.errors.email.message}</span>
                       )}
                     </label>
                     <label htmlFor="admin-password" className="flex flex-col gap-3">
@@ -217,24 +202,23 @@ export default function Home() {
                         <input
                           type={showPassword.admin ? "text" : "password"}
                           id="admin-password"
-                          name="admin-password"
+                          {...adminForm.register("password")}
                           placeholder="********"
-                          className="bg-transparent w-full h-full placeholder:text-[#344054] placeholder:font-normal border-none focus:outline-none"
-                          required
-                          aria-invalid={!!loginErrors.admin.password}
-                          onChange={() =>
-                            setLoginErrors((prev) => ({ ...prev, admin: { ...prev.admin, password: undefined } }))
-                          }
+                          className="bg-transparent w-full h-full placeholder-form-muted placeholder:font-normal border-none focus:outline-none"
+                          aria-invalid={!!adminForm.formState.errors.password}
                         />
                         <button
                           type="button"
                           onClick={() => togglePasswordVisibility('admin')}
-                          className="w-12 flex items-center justify-center bg-transparent text-[#344054] focus:outline-none"
+                          className="w-12 flex items-center justify-center bg-transparent text-form-muted focus:outline-none"
                         >
                           {showPassword.admin ? <Eye size={20} /> : <EyeOff size={20} />}
                         </button>
                       </div>
                     </label>
+                    {adminForm.formState.errors.password && (
+                      <p className="text-sm text-error-text">{adminForm.formState.errors.password.message}</p>
+                    )}
                     <div className="mt-4">
                       <button
                         type="submit"
@@ -244,9 +228,6 @@ export default function Home() {
                         {isSubmittingRole === "admin" ? "Signing in..." : t("signIn")}
                       </button>
                     </div>
-                    {loginErrors.admin.password && (
-                      <p className="text-sm text-[#B91C1C]">{loginErrors.admin.password}</p>
-                    )}
                   </form>
                 </TabsContent>
               </Tabs>
@@ -256,7 +237,7 @@ export default function Home() {
         <div className="h-full md:w-[720px] w-full hidden md:block">
           <div className="h-full md:w-[696px] bg-black/20 w-full rounded-2xl border relative">
             <Image src={loginimage} width={696} height={1000} className='w-[696px] h-full object-top rounded-2xl object-cover' alt='image' />
-            <div className="absolute rounded-b-2xl bottom-0 left-0 w-full bg-[#413E3E4D] backdrop-blur-[10] p-8 flex flex-col gap-8">
+            <div className="absolute rounded-b-2xl bottom-0 left-0 w-full bg-hero-overlay backdrop-blur-[10] p-8 flex flex-col gap-8">
               <div className="flex flex-col gap-2 md:w-[440px] w-full">
                 {/* Dynamic content based on current slide */}
                 <h4 className="text-[38px] text-white font-medium leading-[120%]">
@@ -300,7 +281,7 @@ export default function Home() {
                           className={
                             isActive
                               ? "w-10 h-2.5 bg-white rounded-full transition-all duration-300"
-                              : "size-2.5 bg-[#a5a5a5] rounded-full hover:bg-white/50 transition-all duration-300"
+                              : "size-2.5 bg-muted-gray rounded-full hover:bg-white/50 transition-all duration-300"
                           }
                         />
                       </button>
